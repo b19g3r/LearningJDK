@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -53,14 +53,7 @@ public final class NetworkInterface {
     private static final int defaultIndex; /* index of defaultInterface */
 
     static {
-        AccessController.doPrivileged(
-            new java.security.PrivilegedAction<Void>() {
-                public Void run() {
-                    System.loadLibrary("net");
-                    return null;
-                }
-            });
-
+        AccessController.doPrivileged(new LoadLibraryAction("net"));
         init();
         defaultInterface = DefaultInterface.getDefault();
         if (defaultInterface != null) {
@@ -98,9 +91,9 @@ public final class NetworkInterface {
      * Convenience method to return an Enumeration with all or a
      * subset of the InetAddresses bound to this network interface.
      * <p>
-     * If there is a security manager, its {@code checkConnect}
+     * If there is a security manager, its <code>checkConnect</code>
      * method is called for each InetAddress. Only InetAddresses where
-     * the {@code checkConnect} doesn't throw a SecurityException
+     * the <code>checkConnect</code> doesn't throw a SecurityException
      * will be returned in the Enumeration. However, if the caller has the
      * {@link NetPermission}("getNetworkInformation") permission, then all
      * InetAddresses are returned.
@@ -154,15 +147,15 @@ public final class NetworkInterface {
     }
 
     /**
-     * Get a List of all or a subset of the {@code InterfaceAddresses}
+     * Get a List of all or a subset of the <code>InterfaceAddresses</code>
      * of this network interface.
      * <p>
-     * If there is a security manager, its {@code checkConnect}
+     * If there is a security manager, its <code>checkConnect</code>
      * method is called with the InetAddress for each InterfaceAddress.
-     * Only InterfaceAddresses where the {@code checkConnect} doesn't throw
+     * Only InterfaceAddresses where the <code>checkConnect</code> doesn't throw
      * a SecurityException will be returned in the List.
      *
-     * @return a {@code List} object with all or a subset of the
+     * @return a <code>List</code> object with all or a subset of the
      *         InterfaceAddresss of this network interface
      * @since 1.6
      */
@@ -216,10 +209,10 @@ public final class NetworkInterface {
 
     /**
      * Returns the parent NetworkInterface of this interface if this is
-     * a subinterface, or {@code null} if it is a physical
+     * a subinterface, or <code>null</code> if it is a physical
      * (non virtual) interface or has no parent.
      *
-     * @return The {@code NetworkInterface} this interface is attached to.
+     * @return The <code>NetworkInterface</code> this interface is attached to.
      * @since 1.6
      */
     public NetworkInterface getParent() {
@@ -260,15 +253,15 @@ public final class NetworkInterface {
      * @param   name
      *          The name of the network interface.
      *
-     * @return  A {@code NetworkInterface} with the specified name,
-     *          or {@code null} if there is no network interface
+     * @return  A <tt>NetworkInterface</tt> with the specified name,
+     *          or <tt>null</tt> if there is no network interface
      *          with the specified name.
      *
      * @throws  SocketException
      *          If an I/O error occurs.
      *
      * @throws  NullPointerException
-     *          If the specified name is {@code null}.
+     *          If the specified name is <tt>null</tt>.
      */
     public static NetworkInterface getByName(String name) throws SocketException {
         if (name == null)
@@ -303,45 +296,31 @@ public final class NetworkInterface {
      * returned.
      *
      * @param   addr
-     *          The {@code InetAddress} to search with.
+     *          The <tt>InetAddress</tt> to search with.
      *
-     * @return  A {@code NetworkInterface}
-     *          or {@code null} if there is no network interface
+     * @return  A <tt>NetworkInterface</tt>
+     *          or <tt>null</tt> if there is no network interface
      *          with the specified IP address.
      *
      * @throws  SocketException
      *          If an I/O error occurs.
      *
      * @throws  NullPointerException
-     *          If the specified address is {@code null}.
+     *          If the specified address is <tt>null</tt>.
      */
     public static NetworkInterface getByInetAddress(InetAddress addr) throws SocketException {
         if (addr == null) {
             throw new NullPointerException();
         }
-        if (addr instanceof Inet4Address) {
-            Inet4Address inet4Address = (Inet4Address) addr;
-            if (inet4Address.holder.family != InetAddress.IPv4) {
-                throw new IllegalArgumentException("invalid family type: "
-                        + inet4Address.holder.family);
-            }
-        } else if (addr instanceof Inet6Address) {
-            Inet6Address inet6Address = (Inet6Address) addr;
-            if (inet6Address.holder.family != InetAddress.IPv6) {
-                throw new IllegalArgumentException("invalid family type: "
-                        + inet6Address.holder.family);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid address type: " + addr);
+        if (!(addr instanceof Inet4Address || addr instanceof Inet6Address)) {
+            throw new IllegalArgumentException ("invalid address type");
         }
         return getByInetAddress0(addr);
     }
 
     /**
-     * Returns all the interfaces on this machine. The {@code Enumeration}
-     * contains at least one element, possibly representing a loopback
-     * interface that only supports communication between entities on
-     * this machine.
+     * Returns all the interfaces on this machine. Returns null if no
+     * network interfaces could be found on this machine.
      *
      * NOTE: can use getNetworkInterfaces()+getInetAddresses()
      *       to obtain all IP addresses for this node
@@ -390,7 +369,7 @@ public final class NetworkInterface {
     /**
      * Returns whether a network interface is up and running.
      *
-     * @return  {@code true} if the interface is up and running.
+     * @return  <code>true</code> if the interface is up and running.
      * @exception       SocketException if an I/O error occurs.
      * @since 1.6
      */
@@ -402,7 +381,7 @@ public final class NetworkInterface {
     /**
      * Returns whether a network interface is a loopback interface.
      *
-     * @return  {@code true} if the interface is a loopback interface.
+     * @return  <code>true</code> if the interface is a loopback interface.
      * @exception       SocketException if an I/O error occurs.
      * @since 1.6
      */
@@ -416,7 +395,7 @@ public final class NetworkInterface {
      * A typical point to point interface would be a PPP connection through
      * a modem.
      *
-     * @return  {@code true} if the interface is a point to point
+     * @return  <code>true</code> if the interface is a point to point
      *          interface.
      * @exception       SocketException if an I/O error occurs.
      * @since 1.6
@@ -429,7 +408,7 @@ public final class NetworkInterface {
     /**
      * Returns whether a network interface supports multicasting or not.
      *
-     * @return  {@code true} if the interface supports Multicasting.
+     * @return  <code>true</code> if the interface supports Multicasting.
      * @exception       SocketException if an I/O error occurs.
      * @since 1.6
      */
@@ -444,7 +423,7 @@ public final class NetworkInterface {
      * If a security manager is set, then the caller must have
      * the permission {@link NetPermission}("getNetworkInformation").
      *
-     * @return  a byte array containing the address, or {@code null} if
+     * @return  a byte array containing the address, or <code>null</code> if
      *          the address doesn't exist, is not accessible or a security
      *          manager is set and the caller does not have the permission
      *          NetPermission("getNetworkInformation")
@@ -493,7 +472,7 @@ public final class NetworkInterface {
      * can be several virtual interfaces attached to a single physical
      * interface.
      *
-     * @return {@code true} if this interface is a virtual interface.
+     * @return <code>true</code> if this interface is a virtual interface.
      * @since 1.6
      */
     public boolean isVirtual() {
@@ -509,16 +488,16 @@ public final class NetworkInterface {
 
     /**
      * Compares this object against the specified object.
-     * The result is {@code true} if and only if the argument is
-     * not {@code null} and it represents the same NetworkInterface
+     * The result is <code>true</code> if and only if the argument is
+     * not <code>null</code> and it represents the same NetworkInterface
      * as this object.
      * <p>
-     * Two instances of {@code NetworkInterface} represent the same
+     * Two instances of <code>NetworkInterface</code> represent the same
      * NetworkInterface if both name and addrs are the same for both.
      *
      * @param   obj   the object to compare against.
-     * @return  {@code true} if the objects are the same;
-     *          {@code false} otherwise.
+     * @return  <code>true</code> if the objects are the same;
+     *          <code>false</code> otherwise.
      * @see     java.net.InetAddress#getAddress()
      */
     public boolean equals(Object obj) {

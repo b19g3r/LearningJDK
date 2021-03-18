@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collections;
 import java.io.Serializable;
@@ -44,26 +45,26 @@ import java.io.IOException;
  * This class represents a heterogeneous collection of Permissions. That is,
  * it contains different types of Permission objects, organized into
  * PermissionCollections. For example, if any
- * {@code java.io.FilePermission} objects are added to an instance of
+ * <code>java.io.FilePermission</code> objects are added to an instance of
  * this class, they are all stored in a single
  * PermissionCollection. It is the PermissionCollection returned by a call to
- * the {@code newPermissionCollection} method in the FilePermission class.
- * Similarly, any {@code java.lang.RuntimePermission} objects are
+ * the <code>newPermissionCollection</code> method in the FilePermission class.
+ * Similarly, any <code>java.lang.RuntimePermission</code> objects are
  * stored in the PermissionCollection returned by a call to the
- * {@code newPermissionCollection} method in the
+ * <code>newPermissionCollection</code> method in the
  * RuntimePermission class. Thus, this class represents a collection of
  * PermissionCollections.
  *
- * <p>When the {@code add} method is called to add a Permission, the
+ * <p>When the <code>add</code> method is called to add a Permission, the
  * Permission is stored in the appropriate PermissionCollection. If no such
  * collection exists yet, the Permission object's class is determined and the
- * {@code newPermissionCollection} method is called on that class to create
+ * <code>newPermissionCollection</code> method is called on that class to create
  * the PermissionCollection and add it to the Permissions object. If
- * {@code newPermissionCollection} returns null, then a default
+ * <code>newPermissionCollection</code> returns null, then a default
  * PermissionCollection that uses a hashtable will be created and used. Each
  * hashtable entry stores a Permission object as both the key and the value.
  *
- * <p> Enumerations returned via the {@code elements} method are
+ * <p> Enumerations returned via the <code>elements</code> method are
  * not <em>fail-fast</em>.  Modifications to a collection should not be
  * performed while enumerating over that collection.
  *
@@ -155,9 +156,9 @@ implements Serializable
      * "read" access for  all files in all subdirectories of the "/tmp"
      * directory, and another FilePermission that specifies "write" access
      * for all files in the "/tmp/scratch/foo" directory.
-     * Then if the {@code implies} method
+     * Then if the <code>implies</code> method
      * is called with a permission specifying both "read" and "write" access
-     * to files in the "/tmp/scratch/foo" directory, {@code true} is
+     * to files in the "/tmp/scratch/foo" directory, <code>true</code> is
      * returned.
      *
      * <p>Additionally, if this PermissionCollection contains the
@@ -214,11 +215,11 @@ implements Serializable
      * If createEmpty is true,
      * this method creates a new PermissionCollection object for the specified
      * type of permission objects if one does not yet exist.
-     * To do so, it first calls the {@code newPermissionCollection} method
+     * To do so, it first calls the <code>newPermissionCollection</code> method
      * on <i>p</i>.  Subclasses of class Permission
      * override that method if they need to store their permissions in a
      * particular PermissionCollection object in order to provide the
-     * correct semantics when the {@code PermissionCollection.implies}
+     * correct semantics when the <code>PermissionCollection.implies</code>
      * method is called.
      * If the call returns a PermissionCollection, that collection is stored
      * in this Permissions object. If the call returns null and createEmpty
@@ -237,7 +238,7 @@ implements Serializable
      */
     private PermissionCollection getPermissionCollection(Permission p,
         boolean createEmpty) {
-        Class<?> c = p.getClass();
+        Class c = p.getClass();
 
         PermissionCollection pc = permsMap.get(c);
 
@@ -389,9 +390,6 @@ implements Serializable
         allPermission = (PermissionCollection) gfields.get("allPermission", null);
 
         // Get permissions
-        // writeObject writes a Hashtable<Class<?>, PermissionCollection> for
-        // the perms key, so this cast is safe, unless the data is corrupt.
-        @SuppressWarnings("unchecked")
         Hashtable<Class<?>, PermissionCollection> perms =
             (Hashtable<Class<?>, PermissionCollection>)gfields.get("perms", null);
         permsMap = new HashMap<Class<?>, PermissionCollection>(perms.size()*2);
@@ -592,9 +590,6 @@ implements Serializable
         ObjectInputStream.GetField gfields = in.readFields();
 
         // Get permissions
-        // writeObject writes a Hashtable<Class<?>, PermissionCollection> for
-        // the perms key, so this cast is safe, unless the data is corrupt.
-        @SuppressWarnings("unchecked")
         Hashtable<Permission, Permission> perms =
                 (Hashtable<Permission, Permission>)gfields.get("perms", null);
         permsMap = new HashMap<Permission, Permission>(perms.size()*2);

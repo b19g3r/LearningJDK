@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -163,11 +163,11 @@ public class Cursor implements java.io.Serializable {
      * hashtable, filesystem dir prefix, filename, and properties for custom cursors support
      */
 
-    private static final Hashtable<String,Cursor> systemCustomCursors = new Hashtable<>(1);
+    private static final Hashtable  systemCustomCursors         = new Hashtable(1);
     private static final String systemCustomCursorDirPrefix = initCursorDir();
 
     private static String initCursorDir() {
-        String jhome = java.security.AccessController.doPrivileged(
+        String jhome =  (String) java.security.AccessController.doPrivileged(
                new sun.security.action.GetPropertyAction("java.home"));
         return jhome +
             File.separator + "lib" + File.separator + "images" +
@@ -298,7 +298,7 @@ public class Cursor implements java.io.Serializable {
     static public Cursor getSystemCustomCursor(final String name)
         throws AWTException, HeadlessException {
         GraphicsEnvironment.checkHeadless();
-        Cursor cursor = systemCustomCursors.get(name);
+        Cursor cursor = (Cursor)systemCustomCursors.get(name);
 
         if (cursor == null) {
             synchronized(systemCustomCursors) {
@@ -310,7 +310,7 @@ public class Cursor implements java.io.Serializable {
             String key    = prefix + DotFileSuffix;
 
             if (!systemCustomCursorProperties.containsKey(key)) {
-                if (log.isLoggable(PlatformLogger.Level.FINER)) {
+                if (log.isLoggable(PlatformLogger.FINER)) {
                     log.finer("Cursor.getSystemCustomCursor(" + name + ") returned null");
                 }
                 return null;
@@ -319,11 +319,11 @@ public class Cursor implements java.io.Serializable {
             final String fileName =
                 systemCustomCursorProperties.getProperty(key);
 
-            String localized = systemCustomCursorProperties.getProperty(prefix + DotNameSuffix);
+            String localized = (String)systemCustomCursorProperties.getProperty(prefix + DotNameSuffix);
 
             if (localized == null) localized = name;
 
-            String hotspot = systemCustomCursorProperties.getProperty(prefix + DotHotspotSuffix);
+            String hotspot = (String)systemCustomCursorProperties.getProperty(prefix + DotHotspotSuffix);
 
             if (hotspot == null)
                 throw new AWTException("no hotspot property defined for cursor: " + name);
@@ -348,9 +348,9 @@ public class Cursor implements java.io.Serializable {
                 final int fy = y;
                 final String flocalized = localized;
 
-                cursor = java.security.AccessController.<Cursor>doPrivileged(
-                    new java.security.PrivilegedExceptionAction<Cursor>() {
-                    public Cursor run() throws Exception {
+                cursor = (Cursor) java.security.AccessController.doPrivileged(
+                    new java.security.PrivilegedExceptionAction() {
+                    public Object run() throws Exception {
                         Toolkit toolkit = Toolkit.getDefaultToolkit();
                         Image image = toolkit.getImage(
                            systemCustomCursorDirPrefix + fileName);
@@ -365,7 +365,7 @@ public class Cursor implements java.io.Serializable {
             }
 
             if (cursor == null) {
-                if (log.isLoggable(PlatformLogger.Level.FINER)) {
+                if (log.isLoggable(PlatformLogger.FINER)) {
                     log.finer("Cursor.getSystemCustomCursor(" + name + ") returned null");
                 }
             } else {
@@ -447,8 +447,8 @@ public class Cursor implements java.io.Serializable {
             systemCustomCursorProperties = new Properties();
 
             try {
-                AccessController.<Object>doPrivileged(
-                      new java.security.PrivilegedExceptionAction<Object>() {
+                AccessController.doPrivileged(
+                      new java.security.PrivilegedExceptionAction() {
                     public Object run() throws Exception {
                         FileInputStream fis = null;
                         try {

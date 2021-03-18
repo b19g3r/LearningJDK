@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -45,7 +45,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
     private MethodDescriptor getMethodDescriptor;
 
     private Reference<Method[]> listenerMethodsRef;
-    private Reference<? extends Class<?>> listenerTypeRef;
+    private Reference<Class> listenerTypeRef;
 
     private boolean unicast;
     private boolean inDefaultEventSet = true;
@@ -91,7 +91,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
         }
     }
 
-    private static String getListenerClassName(Class<?> cls) {
+    private static String getListenerClassName(Class cls) {
         String className = cls.getName();
         return className.substring(className.lastIndexOf('.') + 1);
     }
@@ -182,7 +182,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
         }
     }
 
-    private static Method getMethod(Class<?> cls, String name, int args)
+    private static Method getMethod(Class cls, String name, int args)
         throws IntrospectionException {
         if (name == null) {
             return null;
@@ -277,9 +277,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
                 Method removeListenerMethod)
                 throws IntrospectionException {
         setName(eventSetName);
-        this.listenerMethodDescriptors = (listenerMethodDescriptors != null)
-                ? listenerMethodDescriptors.clone()
-                : null;
+        this.listenerMethodDescriptors = listenerMethodDescriptors;
         setAddListenerMethod(addListenerMethod);
         setRemoveListenerMethod(removeListenerMethod);
         setListenerType(listenerType);
@@ -297,7 +295,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
                 : null;
     }
 
-    private void setListenerType(Class<?> cls) {
+    private void setListenerType(Class cls) {
         this.listenerTypeRef = getWeakReference(cls);
     }
 
@@ -349,9 +347,7 @@ public class EventSetDescriptor extends FeatureDescriptor {
      * events are fired.
      */
     public synchronized MethodDescriptor[] getListenerMethodDescriptors() {
-        return (this.listenerMethodDescriptors != null)
-                ? this.listenerMethodDescriptors.clone()
-                : null;
+        return listenerMethodDescriptors;
     }
 
     /**

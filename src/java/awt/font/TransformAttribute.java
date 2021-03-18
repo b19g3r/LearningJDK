@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -120,7 +120,7 @@ public final class TransformAttribute implements Serializable {
         return this;
     }
 
-    // Added for serial backwards compatibility (4348425)
+    // Added for serial backwards compatability (4348425)
     static final long serialVersionUID = 3356247357827709530L;
 
     /**
@@ -141,16 +141,14 @@ public final class TransformAttribute implements Serializable {
      * @since 1.6
      */
     public boolean equals(Object rhs) {
-        if (rhs != null) {
-            try {
-                TransformAttribute that = (TransformAttribute)rhs;
-                if (transform == null) {
-                    return that.transform == null;
-                }
-                return transform.equals(that.transform);
+        try {
+            TransformAttribute that = (TransformAttribute)rhs;
+            if (transform == null) {
+                return that.transform == null;
             }
-            catch (ClassCastException e) {
-            }
+            return transform.equals(that.transform);
+        }
+        catch (ClassCastException e) {
         }
         return false;
     }

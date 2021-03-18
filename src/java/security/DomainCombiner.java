@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -26,27 +26,27 @@
 package java.security;
 
 /**
- * A {@code DomainCombiner} provides a means to dynamically
+ * A <code>DomainCombiner</code> provides a means to dynamically
  * update the ProtectionDomains associated with the current
- * {@code AccessControlContext}.
+ * <code>AccessControlContext</code>.
  *
- * <p> A {@code DomainCombiner} is passed as a parameter to the
- * appropriate constructor for {@code AccessControlContext}.
+ * <p> A <code>DomainCombiner</code> is passed as a parameter to the
+ * appropriate constructor for <code>AccessControlContext</code>.
  * The newly constructed context is then passed to the
- * {@code AccessController.doPrivileged(..., context)} method
- * to bind the provided context (and associated {@code DomainCombiner})
+ * <code>AccessController.doPrivileged(..., context)</code> method
+ * to bind the provided context (and associated <code>DomainCombiner</code>)
  * with the current execution Thread.  Subsequent calls to
- * {@code AccessController.getContext} or
- * {@code AccessController.checkPermission}
- * cause the {@code DomainCombiner.combine} to get invoked.
+ * <code>AccessController.getContext</code> or
+ * <code>AccessController.checkPermission</code>
+ * cause the <code>DomainCombiner.combine</code> to get invoked.
  *
  * <p> The combine method takes two arguments.  The first argument represents
  * an array of ProtectionDomains from the current execution Thread,
- * since the most recent call to {@code AccessController.doPrivileged}.
+ * since the most recent call to <code>AccessController.doPrivileged</code>.
  * If no call to doPrivileged was made, then the first argument will contain
  * all the ProtectionDomains from the current execution Thread.
  * The second argument represents an array of inherited ProtectionDomains,
- * which may be {@code null}.  ProtectionDomains may be inherited
+ * which may be <code>null</code>.  ProtectionDomains may be inherited
  * from a parent Thread, or from a privileged context.  If no call to
  * doPrivileged was made, then the second argument will contain the
  * ProtectionDomains inherited from the parent Thread.  If one or more calls
@@ -54,25 +54,25 @@ package java.security;
  * doPrivileged(action, context), then the second argument will contain the
  * ProtectionDomains from the privileged context.  If the most recent call
  * was to doPrivileged(action), then there is no privileged context,
- * and the second argument will be {@code null}.
+ * and the second argument will be <code>null</code>.
  *
- * <p> The {@code combine} method investigates the two input arrays
+ * <p> The <code>combine</code> method investigates the two input arrays
  * of ProtectionDomains and returns a single array containing the updated
- * ProtectionDomains.  In the simplest case, the {@code combine}
+ * ProtectionDomains.  In the simplest case, the <code>combine</code>
  * method merges the two stacks into one.  In more complex cases,
- * the {@code combine} method returns a modified
+ * the <code>combine</code> method returns a modified
  * stack of ProtectionDomains.  The modification may have added new
  * ProtectionDomains, removed certain ProtectionDomains, or simply
  * updated existing ProtectionDomains.  Re-ordering and other optimizations
  * to the ProtectionDomains are also permitted.  Typically the
- * {@code combine} method bases its updates on the information
- * encapsulated in the {@code DomainCombiner}.
+ * <code>combine</code> method bases its updates on the information
+ * encapsulated in the <code>DomainCombiner</code>.
  *
- * <p> After the {@code AccessController.getContext} method
+ * <p> After the <code>AccessController.getContext</code> method
  * receives the combined stack of ProtectionDomains back from
- * the {@code DomainCombiner}, it returns a new
+ * the <code>DomainCombiner</code>, it returns a new
  * AccessControlContext that has both the combined ProtectionDomains
- * as well as the {@code DomainCombiner}.
+ * as well as the <code>DomainCombiner</code>.
  *
  * @see AccessController
  * @see AccessControlContext
@@ -91,21 +91,21 @@ public interface DomainCombiner {
      *
      * @param currentDomains the ProtectionDomains associated with the
      *          current execution Thread, up to the most recent
-     *          privileged {@code ProtectionDomain}.
+     *          privileged <code>ProtectionDomain</code>.
      *          The ProtectionDomains are are listed in order of execution,
-     *          with the most recently executing {@code ProtectionDomain}
+     *          with the most recently executing <code>ProtectionDomain</code>
      *          residing at the beginning of the array. This parameter may
-     *          be {@code null} if the current execution Thread
+     *          be <code>null</code> if the current execution Thread
      *          has no associated ProtectionDomains.<p>
      *
      * @param assignedDomains an array of inherited ProtectionDomains.
      *          ProtectionDomains may be inherited from a parent Thread,
-     *          or from a privileged {@code AccessControlContext}.
-     *          This parameter may be {@code null}
+     *          or from a privileged <code>AccessControlContext</code>.
+     *          This parameter may be <code>null</code>
      *          if there are no inherited ProtectionDomains.
      *
      * @return a new array consisting of the updated ProtectionDomains,
-     *          or {@code null}.
+     *          or <code>null</code>.
      */
     ProtectionDomain[] combine(ProtectionDomain[] currentDomains,
                                 ProtectionDomain[] assignedDomains);

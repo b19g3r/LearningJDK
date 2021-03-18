@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,16 +25,14 @@
 
 package java.security;
 
-import sun.misc.IOUtils;
-
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
-import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import java.lang.reflect.*;
 import java.security.cert.*;
-import java.util.List;
 
 /**
  * The UnresolvedPermission class is used to hold Permissions that
@@ -76,11 +74,11 @@ import java.util.List;
  * the class provides a zero, one, and/or two-argument constructor.
  * The zero-argument constructor would be used to instantiate
  * a permission without a name and without actions.
- * A one-arg constructor is assumed to take a {@code String}
+ * A one-arg constructor is assumed to take a <code>String</code>
  * name as input, and a two-arg constructor is assumed to take a
- * {@code String} name and {@code String} actions
+ * <code>String</code> name and <code>String</code> actions
  * as input.  UnresolvedPermission may invoke a
- * constructor with a {@code null} name and/or actions.
+ * constructor with a <code>null</code> name and/or actions.
  * If an appropriate permission constructor is not available,
  * the UnresolvedPermission is ignored and the relevant permission
  * will not be granted to executing code.
@@ -88,9 +86,9 @@ import java.util.List;
  * <p> The newly created permission object replaces the
  * UnresolvedPermission, which is removed.
  *
- * <p> Note that the {@code getName} method for an
- * {@code UnresolvedPermission} returns the
- * {@code type} (class name) for the underlying permission
+ * <p> Note that the <code>getName</code> method for an
+ * <code>UnresolvedPermission</code> returns the
+ * <code>type</code> (class name) for the underlying permission
  * that has not been resolved.
  *
  * @see java.security.Permission
@@ -249,19 +247,19 @@ implements java.io.Serializable
             }
         }
         try {
-            Class<?> pc = p.getClass();
+            Class pc = p.getClass();
 
             if (name == null && actions == null) {
                 try {
-                    Constructor<?> c = pc.getConstructor(PARAMS0);
+                    Constructor c = pc.getConstructor(PARAMS0);
                     return (Permission)c.newInstance(new Object[] {});
                 } catch (NoSuchMethodException ne) {
                     try {
-                        Constructor<?> c = pc.getConstructor(PARAMS1);
+                        Constructor c = pc.getConstructor(PARAMS1);
                         return (Permission) c.newInstance(
                               new Object[] { name});
                     } catch (NoSuchMethodException ne1) {
-                        Constructor<?> c = pc.getConstructor(PARAMS2);
+                        Constructor c = pc.getConstructor(PARAMS2);
                         return (Permission) c.newInstance(
                               new Object[] { name, actions });
                     }
@@ -269,16 +267,16 @@ implements java.io.Serializable
             } else {
                 if (name != null && actions == null) {
                     try {
-                        Constructor<?> c = pc.getConstructor(PARAMS1);
+                        Constructor c = pc.getConstructor(PARAMS1);
                         return (Permission) c.newInstance(
                               new Object[] { name});
                     } catch (NoSuchMethodException ne) {
-                        Constructor<?> c = pc.getConstructor(PARAMS2);
+                        Constructor c = pc.getConstructor(PARAMS2);
                         return (Permission) c.newInstance(
                               new Object[] { name, actions });
                     }
                 } else {
-                    Constructor<?> c = pc.getConstructor(PARAMS2);
+                    Constructor c = pc.getConstructor(PARAMS2);
                     return (Permission) c.newInstance(
                           new Object[] { name, actions });
                 }
@@ -444,8 +442,8 @@ implements java.io.Serializable
      * has not been resolved.
      *
      * @return the target name of the underlying permission that
-     *          has not been resolved, or {@code null},
-     *          if there is no target name
+     *          has not been resolved, or <code>null</code>,
+     *          if there is no targe name
      *
      * @since 1.5
      */
@@ -458,7 +456,7 @@ implements java.io.Serializable
      * has not been resolved.
      *
      * @return the actions for the underlying permission that
-     *          has not been resolved, or {@code null}
+     *          has not been resolved, or <code>null</code>
      *          if there are no actions
      *
      * @since 1.5
@@ -507,16 +505,16 @@ implements java.io.Serializable
     /**
      * Writes this object out to a stream (i.e., serializes it).
      *
-     * @serialData An initial {@code String} denoting the
-     * {@code type} is followed by a {@code String} denoting the
-     * {@code name} is followed by a {@code String} denoting the
-     * {@code actions} is followed by an {@code int} indicating the
+     * @serialData An initial <code>String</code> denoting the
+     * <code>type</code> is followed by a <code>String</code> denoting the
+     * <code>name</code> is followed by a <code>String</code> denoting the
+     * <code>actions</code> is followed by an <code>int</code> indicating the
      * number of certificates to follow
      * (a value of "zero" denotes that there are no certificates associated
      * with this object).
-     * Each certificate is written out starting with a {@code String}
+     * Each certificate is written out starting with a <code>String</code>
      * denoting the certificate type, followed by an
-     * {@code int} specifying the length of the certificate encoding,
+     * <code>int</code> specifying the length of the certificate encoding,
      * followed by the certificate encoding itself which is written out as an
      * array of bytes.
      */
@@ -553,7 +551,6 @@ implements java.io.Serializable
     {
         CertificateFactory cf;
         Hashtable<String, CertificateFactory> cfs = null;
-        List<Certificate> certList = null;
 
         ois.defaultReadObject();
 
@@ -565,10 +562,8 @@ implements java.io.Serializable
         if (size > 0) {
             // we know of 3 different cert types: X.509, PGP, SDSI, which
             // could all be present in the stream at the same time
-            cfs = new Hashtable<>(3);
-            certList = new ArrayList<>(size > 20 ? 20 : size);
-        } else if (size < 0) {
-            throw new IOException("size cannot be negative");
+            cfs = new Hashtable<String, CertificateFactory>(3);
+            this.certs = new java.security.cert.Certificate[size];
         }
 
         for (int i=0; i<size; i++) {
@@ -590,18 +585,20 @@ implements java.io.Serializable
                 cfs.put(certType, cf);
             }
             // parse the certificate
-            byte[] encoded = IOUtils.readNBytes(ois, ois.readInt());
+            byte[] encoded=null;
+            try {
+                encoded = new byte[ois.readInt()];
+            } catch (OutOfMemoryError oome) {
+                throw new IOException("Certificate too big");
+            }
+            ois.readFully(encoded);
             ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
             try {
-                certList.add(cf.generateCertificate(bais));
+                this.certs[i] = cf.generateCertificate(bais);
             } catch (CertificateException ce) {
                 throw new IOException(ce.getMessage());
             }
             bais.close();
-        }
-        if (certList != null) {
-            this.certs = certList.toArray(
-                    new java.security.cert.Certificate[size]);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -242,7 +242,7 @@ class DirectIntBufferS
     }
 
     private long ix(int i) {
-        return address + ((long)i << 2);
+        return address + (i << 2);
     }
 
     public int get() {
@@ -253,15 +253,9 @@ class DirectIntBufferS
         return (Bits.swap(unsafe.getInt(ix(checkIndex(i)))));
     }
 
-
-
-
-
-
-
     public IntBuffer get(int[] dst, int offset, int length) {
 
-        if (((long)length << 2) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
+        if ((length << 2) > Bits.JNI_COPY_TO_ARRAY_THRESHOLD) {
             checkBounds(offset, length, dst.length);
             int pos = position();
             int lim = limit();
@@ -273,13 +267,13 @@ class DirectIntBufferS
 
             if (order() != ByteOrder.nativeOrder())
                 Bits.copyToIntArray(ix(pos), dst,
-                                          (long)offset << 2,
-                                          (long)length << 2);
+                                          offset << 2,
+                                          length << 2);
             else
 
                 Bits.copyToArray(ix(pos), dst, arrayBaseOffset,
-                                 (long)offset << 2,
-                                 (long)length << 2);
+                                 offset << 2,
+                                 length << 2);
             position(pos + length);
         } else {
             super.get(dst, offset, length);
@@ -329,7 +323,7 @@ class DirectIntBufferS
 
             if (srem > rem)
                 throw new BufferOverflowException();
-            unsafe.copyMemory(sb.ix(spos), ix(pos), (long)srem << 2);
+            unsafe.copyMemory(sb.ix(spos), ix(pos), srem << 2);
             sb.position(spos + srem);
             position(pos + srem);
         } else if (src.hb != null) {
@@ -353,7 +347,7 @@ class DirectIntBufferS
 
     public IntBuffer put(int[] src, int offset, int length) {
 
-        if (((long)length << 2) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
+        if ((length << 2) > Bits.JNI_COPY_FROM_ARRAY_THRESHOLD) {
             checkBounds(offset, length, src.length);
             int pos = position();
             int lim = limit();
@@ -364,16 +358,12 @@ class DirectIntBufferS
 
 
             if (order() != ByteOrder.nativeOrder())
-                Bits.copyFromIntArray(src,
-                                            (long)offset << 2,
-                                            ix(pos),
-                                            (long)length << 2);
+                Bits.copyFromIntArray(src, offset << 2,
+                                            ix(pos), length << 2);
             else
 
-                Bits.copyFromArray(src, arrayBaseOffset,
-                                   (long)offset << 2,
-                                   ix(pos),
-                                   (long)length << 2);
+                Bits.copyFromArray(src, arrayBaseOffset, offset << 2,
+                                   ix(pos), length << 2);
             position(pos + length);
         } else {
             super.put(src, offset, length);
@@ -391,7 +381,7 @@ class DirectIntBufferS
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
 
-        unsafe.copyMemory(ix(pos), ix(0), (long)rem << 2);
+        unsafe.copyMemory(ix(pos), ix(0), rem << 2);
         position(rem);
         limit(capacity());
         discardMark();

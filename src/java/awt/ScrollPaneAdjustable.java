@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -158,7 +158,8 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
-        AWTAccessor.setScrollPaneAdjustableAccessor(new AWTAccessor.ScrollPaneAdjustableAccessor() {
+        AWTAccessor.setScrollPaneAdjustableAccessor(
+                new AWTAccessor.ScrollPaneAdjustableAccessor() {
             public void setTypedValue(final ScrollPaneAdjustable adj,
                                       final int v, final int type) {
                 adj.setTypedValue(v, type);
@@ -220,7 +221,7 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
      * This method is public for this class to properly implement
      * <code>Adjustable</code> interface.
      *
-     * @throws AWTError Always throws an error when called.
+     * @throws <code>AWTError</code>  Always throws an error when called.
      */
     public void setMinimum(int min) {
         throw new AWTError(SCROLLPANE_ONLY);
@@ -237,7 +238,7 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
      * This method is public for this class to properly implement
      * <code>Adjustable</code> interface.
      *
-     * @throws AWTError Always throws an error when called.
+     * @throws <code>AWTError</code>  Always throws an error when called.
      */
     public void setMaximum(int max) {
         throw new AWTError(SCROLLPANE_ONLY);
@@ -274,7 +275,7 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
      * This method is public for this class to properly implement
      * <code>Adjustable</code> interface.
      *
-     * @throws AWTError Always throws an error when called.
+     * @throws <code>AWTError</code>  Always throws an error when called.
      */
     public void setVisibleAmount(int v) {
         throw new AWTError(SCROLLPANE_ONLY);
@@ -336,7 +337,7 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
      * the AdjustementEvent with specified type and value.
      *
      * @param v the new value of the scrollbar
-     * @param type the type of the scrolling operation occurred
+     * @param type the type of the scrolling operation occured
      */
     private void setTypedValue(int v, int type) {
         v = Math.max(v, minimum);

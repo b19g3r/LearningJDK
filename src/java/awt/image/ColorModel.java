@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -204,12 +204,7 @@ public abstract class ColorModel implements Transparency{
     static void loadLibraries() {
         if (!loaded) {
             java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<Void>() {
-                    public Void run() {
-                        System.loadLibrary("awt");
-                        return null;
-                    }
-                });
+                  new sun.security.action.LoadLibraryAction("awt"));
             loaded = true;
         }
     }
@@ -362,7 +357,7 @@ public abstract class ColorModel implements Transparency{
             this.transparency         = transparency;
         }
 
-        nBits = bits.clone();
+        nBits = (int[]) bits.clone();
         this.pixel_bits = pixel_bits;
         if (pixel_bits <= 0) {
             throw new IllegalArgumentException("Number of pixel bits must "+
@@ -479,7 +474,7 @@ public abstract class ColorModel implements Transparency{
      */
     public int[] getComponentSize() {
         if (nBits != null) {
-            return nBits.clone();
+            return (int[]) nBits.clone();
         }
 
         return null;
@@ -692,12 +687,12 @@ public abstract class ColorModel implements Transparency{
      * <code>DataBuffer.TYPE_INT</code>.
      * @param inData an array of pixel values
      * @return the value of the green component of the specified pixel.
-     * @throws ClassCastException if <code>inData</code>
+     * @throws <code>ClassCastException</code> if <code>inData</code>
      *  is not a primitive array of type <code>transferType</code>
-     * @throws ArrayIndexOutOfBoundsException if
+     * @throws <code>ArrayIndexOutOfBoundsException</code> if
      *  <code>inData</code> is not large enough to hold a pixel value
      *  for this <code>ColorModel</code>
-     * @throws UnsupportedOperationException if this
+     * @throws <code>UnsupportedOperationException</code> if this
      *  <code>tranferType</code> is not supported by this
      *  <code>ColorModel</code>
      */
@@ -1697,10 +1692,10 @@ public abstract class ColorModel implements Transparency{
     static short[] s8Tol16 = null; // 8-bit non-linear sRGB to 16-bit linear LUT
 
                                 // Maps to hold LUTs for grayscale conversions
-    static Map<ICC_ColorSpace, byte[]> g8Tos8Map = null;     // 8-bit gray values to 8-bit sRGB values
-    static Map<ICC_ColorSpace, byte[]> lg16Toog8Map = null;  // 16-bit linear to 8-bit "other" gray
-    static Map<ICC_ColorSpace, byte[]> g16Tos8Map = null;    // 16-bit gray values to 8-bit sRGB values
-    static Map<ICC_ColorSpace, short[]> lg16Toog16Map = null; // 16-bit linear to 16-bit "other" gray
+    static Map g8Tos8Map = null;     // 8-bit gray values to 8-bit sRGB values
+    static Map lg16Toog8Map = null;  // 16-bit linear to 8-bit "other" gray
+    static Map g16Tos8Map = null;    // 16-bit gray values to 8-bit sRGB values
+    static Map lg16Toog16Map = null; // 16-bit linear to 16-bit "other" gray
 
     static boolean isLinearRGBspace(ColorSpace cs) {
         // Note: CMM.LINEAR_RGBspace will be null if the linear
@@ -1804,7 +1799,7 @@ public abstract class ColorModel implements Transparency{
             return getLinearRGB8TosRGB8LUT();
         }
         if (g8Tos8Map != null) {
-            byte[] g8Tos8LUT = g8Tos8Map.get(grayCS);
+            byte[] g8Tos8LUT = (byte []) g8Tos8Map.get(grayCS);
             if (g8Tos8LUT != null) {
                 return g8Tos8LUT;
             }
@@ -1832,7 +1827,7 @@ public abstract class ColorModel implements Transparency{
             g8Tos8LUT[i] = tmp[j];
         }
         if (g8Tos8Map == null) {
-            g8Tos8Map = Collections.synchronizedMap(new WeakHashMap<ICC_ColorSpace, byte[]>(2));
+            g8Tos8Map = Collections.synchronizedMap(new WeakHashMap(2));
         }
         g8Tos8Map.put(grayCS, g8Tos8LUT);
         return g8Tos8LUT;
@@ -1845,7 +1840,7 @@ public abstract class ColorModel implements Transparency{
      */
     static byte[] getLinearGray16ToOtherGray8LUT(ICC_ColorSpace grayCS) {
         if (lg16Toog8Map != null) {
-            byte[] lg16Toog8LUT = lg16Toog8Map.get(grayCS);
+            byte[] lg16Toog8LUT = (byte []) lg16Toog8Map.get(grayCS);
             if (lg16Toog8LUT != null) {
                 return lg16Toog8LUT;
             }
@@ -1871,7 +1866,7 @@ public abstract class ColorModel implements Transparency{
                 (byte) (((float) (tmp[i] & 0xffff)) * (1.0f /257.0f) + 0.5f);
         }
         if (lg16Toog8Map == null) {
-            lg16Toog8Map = Collections.synchronizedMap(new WeakHashMap<ICC_ColorSpace, byte[]>(2));
+            lg16Toog8Map = Collections.synchronizedMap(new WeakHashMap(2));
         }
         lg16Toog8Map.put(grayCS, lg16Toog8LUT);
         return lg16Toog8LUT;
@@ -1889,7 +1884,7 @@ public abstract class ColorModel implements Transparency{
             return getLinearRGB16TosRGB8LUT();
         }
         if (g16Tos8Map != null) {
-            byte[] g16Tos8LUT = g16Tos8Map.get(grayCS);
+            byte[] g16Tos8LUT = (byte []) g16Tos8Map.get(grayCS);
             if (g16Tos8LUT != null) {
                 return g16Tos8LUT;
             }
@@ -1921,7 +1916,7 @@ public abstract class ColorModel implements Transparency{
                 (byte) (((float) (tmp[j] & 0xffff)) * (1.0f /257.0f) + 0.5f);
         }
         if (g16Tos8Map == null) {
-            g16Tos8Map = Collections.synchronizedMap(new WeakHashMap<ICC_ColorSpace, byte[]>(2));
+            g16Tos8Map = Collections.synchronizedMap(new WeakHashMap(2));
         }
         g16Tos8Map.put(grayCS, g16Tos8LUT);
         return g16Tos8LUT;
@@ -1934,7 +1929,7 @@ public abstract class ColorModel implements Transparency{
      */
     static short[] getLinearGray16ToOtherGray16LUT(ICC_ColorSpace grayCS) {
         if (lg16Toog16Map != null) {
-            short[] lg16Toog16LUT = lg16Toog16Map.get(grayCS);
+            short[] lg16Toog16LUT = (short []) lg16Toog16Map.get(grayCS);
             if (lg16Toog16LUT != null) {
                 return lg16Toog16LUT;
             }
@@ -1955,7 +1950,7 @@ public abstract class ColorModel implements Transparency{
             transformList);
         short[] lg16Toog16LUT = t.colorConvert(tmp, null);
         if (lg16Toog16Map == null) {
-            lg16Toog16Map = Collections.synchronizedMap(new WeakHashMap<ICC_ColorSpace, short[]>(2));
+            lg16Toog16Map = Collections.synchronizedMap(new WeakHashMap(2));
         }
         lg16Toog16Map.put(grayCS, lg16Toog16LUT);
         return lg16Toog16LUT;

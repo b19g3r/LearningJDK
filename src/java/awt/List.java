@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -41,7 +41,7 @@ import javax.accessibility.*;
  * the user can choose either one item or multiple items.
  * <p>
  * For example, the code&nbsp;.&nbsp;.&nbsp;.
- *
+ * <p>
  * <hr><blockquote><pre>
  * List lst = new List(4, false);
  * lst.add("Mercury");
@@ -61,7 +61,7 @@ import javax.accessibility.*;
  * scrolling list:
  * <p>
  * <img src="doc-files/List-1.gif"
- * alt="Shows a list containing: Venus, Earth, JavaSoft, and Mars. Javasoft is selected." style="float:center; margin: 7px 10px;">
+ * alt="Shows a list containing: Venus, Earth, JavaSoft, and Mars. Javasoft is selected." ALIGN=center HSPACE=10 VSPACE=7>
  * <p>
  * If the List allows multiple selections, then clicking on
  * an item that is already selected deselects it. In the preceding
@@ -115,7 +115,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * @see #addItem(String)
      * @see #getItem(int)
      */
-    Vector<String>      items = new Vector<>();
+    Vector      items = new Vector();
 
     /**
      * This field will represent the number of visible rows in the
@@ -306,7 +306,7 @@ public class List extends Component implements ItemSelectable, Accessible {
     //       to insure that it cannot be overridden by client subclasses.
     //       DO NOT INVOKE CLIENT CODE ON THIS THREAD!
     final String getItemImpl(int index) {
-        return items.elementAt(index);
+        return (String)items.elementAt(index);
     }
 
     /**
@@ -415,7 +415,7 @@ public class List extends Component implements ItemSelectable, Accessible {
         if (peer != null) {
             peer.removeAll();
         }
-        items = new Vector<>();
+        items = new Vector();
         selected = new int[0];
     }
 
@@ -490,9 +490,9 @@ public class List extends Component implements ItemSelectable, Accessible {
     public synchronized int[] getSelectedIndexes() {
         ListPeer peer = (ListPeer)this.peer;
         if (peer != null) {
-            selected = peer.getSelectedIndexes();
+            selected = ((ListPeer)peer).getSelectedIndexes();
         }
-        return selected.clone();
+        return (int[])selected.clone();
     }
 
     /**
@@ -797,7 +797,7 @@ public class List extends Component implements ItemSelectable, Accessible {
     }
 
     /**
-     * Gets the minimum dimensions for a list with the specified
+     * Gets the minumum dimensions for a list with the specified
      * number of rows.
      * @param      rows    number of rows in the list
      * @return     the minimum dimensions for displaying this scrolling list
@@ -908,7 +908,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * @since 1.4
      */
     public synchronized ItemListener[] getItemListeners() {
-        return getListeners(ItemListener.class);
+        return (ItemListener[])(getListeners(ItemListener.class));
     }
 
     /**
@@ -975,7 +975,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * @since 1.4
      */
     public synchronized ActionListener[] getActionListeners() {
-        return getListeners(ActionListener.class);
+        return (ActionListener[])(getListeners(ActionListener.class));
     }
 
     /**
@@ -1082,7 +1082,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * This method is not called unless item events are
      * enabled for this component. Item events are enabled
      * when one of the following occurs:
-     * <ul>
+     * <p><ul>
      * <li>An <code>ItemListener</code> object is registered
      * via <code>addItemListener</code>.
      * <li>Item events are enabled via <code>enableEvents</code>.
@@ -1113,7 +1113,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * This method is not called unless action events are
      * enabled for this component. Action events are enabled
      * when one of the following occurs:
-     * <ul>
+     * <p><ul>
      * <li>An <code>ActionListener</code> object is registered
      * via <code>addActionListener</code>.
      * <li>Action events are enabled via <code>enableEvents</code>.
@@ -1164,7 +1164,7 @@ public class List extends Component implements ItemSelectable, Accessible {
 
     /*
      * Serialization support.  Since the value of the selected
-     * field isn't necessarily up to date, we sync it up with the
+     * field isn't neccessarily up to date we sync it up with the
      * peer before serializing.
      */
 

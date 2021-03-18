@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import sun.misc.IoTrace;
 import sun.net.ConnectionResetException;
 
 /**
@@ -67,8 +68,8 @@ class SocketInputStream extends FileInputStream
      * Returns the unique {@link java.nio.channels.FileChannel FileChannel}
      * object associated with this file input stream.</p>
      *
-     * The {@code getChannel} method of {@code SocketInputStream}
-     * returns {@code null} since it is a socket based stream.</p>
+     * The <code>getChannel</code> method of <code>SocketInputStream</code>
+     * returns <code>null</code> since it is a socket based stream.</p>
      *
      * @return  the file channel associated with this file input stream
      *
@@ -96,26 +97,6 @@ class SocketInputStream extends FileInputStream
                                    int timeout)
         throws IOException;
 
-    // wrap native call to allow instrumentation
-    /**
-     * Reads into an array of bytes at the specified offset using
-     * the received socket primitive.
-     * @param fd the FileDescriptor
-     * @param b the buffer into which the data is read
-     * @param off the start offset of the data
-     * @param len the maximum number of bytes read
-     * @param timeout the read timeout in ms
-     * @return the actual number of bytes read, -1 is
-     *          returned when the end of the stream is reached.
-     * @exception IOException If an I/O error has occurred.
-     */
-    private int socketRead(FileDescriptor fd,
-                           byte b[], int off, int len,
-                           int timeout)
-        throws IOException {
-        return socketRead0(fd, b, off, len, timeout);
-    }
-
     /**
      * Reads into a byte array data from the socket.
      * @param b the buffer into which the data is read
@@ -132,7 +113,7 @@ class SocketInputStream extends FileInputStream
      * <i>length</i> bytes of data.
      * @param b the buffer into which the data is read
      * @param off the start offset of the data
-     * @param length the maximum number of bytes read
+     * @param len the maximum number of bytes read
      * @return the actual number of bytes read, -1 is
      *          returned when the end of the stream is reached.
      * @exception IOException If an I/O error has occurred.
@@ -142,7 +123,7 @@ class SocketInputStream extends FileInputStream
     }
 
     int read(byte b[], int off, int length, int timeout) throws IOException {
-        int n;
+        int n = 0;
 
         // EOF already encountered
         if (eof) {
@@ -155,20 +136,20 @@ class SocketInputStream extends FileInputStream
         }
 
         // bounds check
-        if (length <= 0 || off < 0 || length > b.length - off) {
+        if (length <= 0 || off < 0 || off + length > b.length) {
             if (length == 0) {
                 return 0;
             }
-            throw new ArrayIndexOutOfBoundsException("length == " + length
-                    + " off == " + off + " buffer length == " + b.length);
+            throw new ArrayIndexOutOfBoundsException();
         }
 
         boolean gotReset = false;
 
+        Object traceContext = IoTrace.socketReadBegin();
         // acquire file descriptor and do the read
         FileDescriptor fd = impl.acquireFD();
         try {
-            n = socketRead(fd, b, off, length, timeout);
+            n = socketRead0(fd, b, off, length, timeout);
             if (n > 0) {
                 return n;
             }
@@ -176,6 +157,8 @@ class SocketInputStream extends FileInputStream
             gotReset = true;
         } finally {
             impl.releaseFD();
+            IoTrace.socketReadEnd(traceContext, impl.address, impl.port,
+                                  timeout, n > 0 ? n : 0);
         }
 
         /*
@@ -183,16 +166,19 @@ class SocketInputStream extends FileInputStream
          * buffered on the socket
          */
         if (gotReset) {
+            traceContext = IoTrace.socketReadBegin();
             impl.setConnectionResetPending();
             impl.acquireFD();
             try {
-                n = socketRead(fd, b, off, length, timeout);
+                n = socketRead0(fd, b, off, length, timeout);
                 if (n > 0) {
                     return n;
                 }
             } catch (ConnectionResetException rstExc) {
             } finally {
                 impl.releaseFD();
+                IoTrace.socketReadEnd(traceContext, impl.address, impl.port,
+                                      timeout, n > 0 ? n : 0);
             }
         }
 
@@ -230,7 +216,7 @@ class SocketInputStream extends FileInputStream
 
     /**
      * Skips n bytes of input.
-     * @param numbytes the number of bytes to skip
+     * @param n the number of bytes to skip
      * @return  the actual number of bytes skipped.
      * @exception IOException If an I/O error has occurred.
      */

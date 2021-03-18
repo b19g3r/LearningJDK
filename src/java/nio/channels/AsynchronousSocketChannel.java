@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -62,7 +62,7 @@ import java.nio.ByteBuffer;
  * <p> Socket options are configured using the {@link #setOption(SocketOption,Object)
  * setOption} method. Asynchronous socket channels support the following options:
  * <blockquote>
- * <table border summary="Socket options">
+ * <table border>
  *   <tr>
  *     <th>Option Name</th>
  *     <th>Description</th>
@@ -91,7 +91,7 @@ import java.nio.ByteBuffer;
  * </blockquote>
  * Additional (implementation specific) options may also be supported.
  *
- * <h2>Timeouts</h2>
+ * <h4>Timeouts</h4>
  *
  * <p> The {@link #read(ByteBuffer,long,TimeUnit,Object,CompletionHandler) read}
  * and {@link #write(ByteBuffer,long,TimeUnit,Object,CompletionHandler) write}
@@ -123,9 +123,6 @@ public abstract class AsynchronousSocketChannel
 
     /**
      * Initializes a new instance of this class.
-     *
-     * @param  provider
-     *         The provider that created this channel
      */
     protected AsynchronousSocketChannel(AsynchronousChannelProvider provider) {
         this.provider = provider;
@@ -133,8 +130,6 @@ public abstract class AsynchronousSocketChannel
 
     /**
      * Returns the provider that created this channel.
-     *
-     * @return  The provider that created this channel
      */
     public final AsynchronousChannelProvider provider() {
         return provider;
@@ -200,10 +195,6 @@ public abstract class AsynchronousSocketChannel
      * @throws  UnsupportedAddressTypeException     {@inheritDoc}
      * @throws  ClosedChannelException              {@inheritDoc}
      * @throws  IOException                         {@inheritDoc}
-     * @throws  SecurityException
-     *          If a security manager has been installed and its
-     *          {@link SecurityManager#checkListen checkListen} method denies
-     *          the operation
      */
     @Override
     public abstract AsynchronousSocketChannel bind(SocketAddress local)
@@ -296,8 +287,6 @@ public abstract class AsynchronousSocketChannel
      * java.lang.SecurityManager#checkConnect checkConnect} method permits
      * connecting to the address and port number of the given remote endpoint.
      *
-     * @param   <A>
-     *          The type of the attachment
      * @param   remote
      *          The remote address to which this channel is to be connected
      * @param   attachment
@@ -376,8 +365,6 @@ public abstract class AsynchronousSocketChannel
      * AsynchronousByteChannel#read(ByteBuffer,Object,CompletionHandler)}
      * method.
      *
-     * @param   <A>
-     *          The type of the attachment
      * @param   dst
      *          The buffer into which bytes are to be transferred
      * @param   timeout
@@ -474,8 +461,6 @@ public abstract class AsynchronousSocketChannel
      * read from the channel will cause an unspecific runtime exception to be
      * thrown.
      *
-     * @param   <A>
-     *          The type of the attachment
      * @param   dsts
      *          The buffers into which bytes are to be transferred
      * @param   offset
@@ -535,8 +520,6 @@ public abstract class AsynchronousSocketChannel
      * AsynchronousByteChannel#write(ByteBuffer,Object,CompletionHandler)}
      * method.
      *
-     * @param   <A>
-     *          The type of the attachment
      * @param   src
      *          The buffer from which bytes are to be retrieved
      * @param   timeout
@@ -627,8 +610,6 @@ public abstract class AsynchronousSocketChannel
      * to write to the channel will cause an unspecific runtime exception to be
      * thrown.
      *
-     * @param   <A>
-     *          The type of the attachment
      * @param   srcs
      *          The buffers from which bytes are to be retrieved
      * @param   offset
@@ -664,24 +645,4 @@ public abstract class AsynchronousSocketChannel
                                    TimeUnit unit,
                                    A attachment,
                                    CompletionHandler<Long,? super A> handler);
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If there is a security manager set, its {@code checkConnect} method is
-     * called with the local address and {@code -1} as its arguments to see
-     * if the operation is allowed. If the operation is not allowed,
-     * a {@code SocketAddress} representing the
-     * {@link java.net.InetAddress#getLoopbackAddress loopback} address and the
-     * local port of the channel's socket is returned.
-     *
-     * @return  The {@code SocketAddress} that the socket is bound to, or the
-     *          {@code SocketAddress} representing the loopback address if
-     *          denied by the security manager, or {@code null} if the
-     *          channel's socket is not bound
-     *
-     * @throws  ClosedChannelException     {@inheritDoc}
-     * @throws  IOException                {@inheritDoc}
-     */
-    public abstract SocketAddress getLocalAddress() throws IOException;
 }

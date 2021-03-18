@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2007, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,11 +24,7 @@
  */
 package java.awt;
 
-import sun.awt.AWTAccessor;
-
 import java.io.ObjectStreamException;
-
-import java.lang.annotation.Native;
 
 /**
  * A class to encapsulate symbolic colors representing the color of
@@ -58,187 +54,187 @@ public final class SystemColor extends Color implements java.io.Serializable {
      * {@link #desktop} system color.
      * @see SystemColor#desktop
      */
-    @Native public final static int DESKTOP = 0;
+    public final static int DESKTOP = 0;
 
     /**
      * The array index for the
      * {@link #activeCaption} system color.
      * @see SystemColor#activeCaption
      */
-    @Native public final static int ACTIVE_CAPTION = 1;
+    public final static int ACTIVE_CAPTION = 1;
 
     /**
      * The array index for the
      * {@link #activeCaptionText} system color.
      * @see SystemColor#activeCaptionText
      */
-    @Native public final static int ACTIVE_CAPTION_TEXT = 2;
+    public final static int ACTIVE_CAPTION_TEXT = 2;
 
     /**
      * The array index for the
      * {@link #activeCaptionBorder} system color.
      * @see SystemColor#activeCaptionBorder
      */
-    @Native public final static int ACTIVE_CAPTION_BORDER = 3;
+    public final static int ACTIVE_CAPTION_BORDER = 3;
 
     /**
      * The array index for the
      * {@link #inactiveCaption} system color.
      * @see SystemColor#inactiveCaption
      */
-    @Native public final static int INACTIVE_CAPTION = 4;
+    public final static int INACTIVE_CAPTION = 4;
 
     /**
      * The array index for the
      * {@link #inactiveCaptionText} system color.
      * @see SystemColor#inactiveCaptionText
      */
-    @Native public final static int INACTIVE_CAPTION_TEXT = 5;
+    public final static int INACTIVE_CAPTION_TEXT = 5;
 
     /**
      * The array index for the
      * {@link #inactiveCaptionBorder} system color.
      * @see SystemColor#inactiveCaptionBorder
      */
-    @Native public final static int INACTIVE_CAPTION_BORDER = 6;
+    public final static int INACTIVE_CAPTION_BORDER = 6;
 
     /**
      * The array index for the
      * {@link #window} system color.
      * @see SystemColor#window
      */
-    @Native public final static int WINDOW = 7;
+    public final static int WINDOW = 7;
 
     /**
      * The array index for the
      * {@link #windowBorder} system color.
      * @see SystemColor#windowBorder
      */
-    @Native public final static int WINDOW_BORDER = 8;
+    public final static int WINDOW_BORDER = 8;
 
     /**
      * The array index for the
      * {@link #windowText} system color.
      * @see SystemColor#windowText
      */
-    @Native public final static int WINDOW_TEXT = 9;
+    public final static int WINDOW_TEXT = 9;
 
     /**
      * The array index for the
      * {@link #menu} system color.
      * @see SystemColor#menu
      */
-    @Native public final static int MENU = 10;
+    public final static int MENU = 10;
 
     /**
      * The array index for the
      * {@link #menuText} system color.
      * @see SystemColor#menuText
      */
-    @Native public final static int MENU_TEXT = 11;
+    public final static int MENU_TEXT = 11;
 
     /**
      * The array index for the
      * {@link #text} system color.
      * @see SystemColor#text
      */
-    @Native public final static int TEXT = 12;
+    public final static int TEXT = 12;
 
     /**
      * The array index for the
      * {@link #textText} system color.
      * @see SystemColor#textText
      */
-    @Native public final static int TEXT_TEXT = 13;
+    public final static int TEXT_TEXT = 13;
 
     /**
      * The array index for the
      * {@link #textHighlight} system color.
      * @see SystemColor#textHighlight
      */
-    @Native public final static int TEXT_HIGHLIGHT = 14;
+    public final static int TEXT_HIGHLIGHT = 14;
 
     /**
      * The array index for the
      * {@link #textHighlightText} system color.
      * @see SystemColor#textHighlightText
      */
-    @Native public final static int TEXT_HIGHLIGHT_TEXT = 15;
+    public final static int TEXT_HIGHLIGHT_TEXT = 15;
 
     /**
      * The array index for the
      * {@link #textInactiveText} system color.
      * @see SystemColor#textInactiveText
      */
-    @Native public final static int TEXT_INACTIVE_TEXT = 16;
+    public final static int TEXT_INACTIVE_TEXT = 16;
 
     /**
      * The array index for the
      * {@link #control} system color.
      * @see SystemColor#control
      */
-    @Native public final static int CONTROL = 17;
+    public final static int CONTROL = 17;
 
     /**
      * The array index for the
      * {@link #controlText} system color.
      * @see SystemColor#controlText
      */
-    @Native public final static int CONTROL_TEXT = 18;
+    public final static int CONTROL_TEXT = 18;
 
     /**
      * The array index for the
      * {@link #controlHighlight} system color.
      * @see SystemColor#controlHighlight
      */
-    @Native public final static int CONTROL_HIGHLIGHT = 19;
+    public final static int CONTROL_HIGHLIGHT = 19;
 
     /**
      * The array index for the
      * {@link #controlLtHighlight} system color.
      * @see SystemColor#controlLtHighlight
      */
-    @Native public final static int CONTROL_LT_HIGHLIGHT = 20;
+    public final static int CONTROL_LT_HIGHLIGHT = 20;
 
     /**
      * The array index for the
      * {@link #controlShadow} system color.
      * @see SystemColor#controlShadow
      */
-    @Native public final static int CONTROL_SHADOW = 21;
+    public final static int CONTROL_SHADOW = 21;
 
     /**
      * The array index for the
      * {@link #controlDkShadow} system color.
      * @see SystemColor#controlDkShadow
      */
-    @Native public final static int CONTROL_DK_SHADOW = 22;
+    public final static int CONTROL_DK_SHADOW = 22;
 
     /**
      * The array index for the
      * {@link #scrollbar} system color.
      * @see SystemColor#scrollbar
      */
-    @Native public final static int SCROLLBAR = 23;
+    public final static int SCROLLBAR = 23;
 
     /**
      * The array index for the
      * {@link #info} system color.
      * @see SystemColor#info
      */
-    @Native public final static int INFO = 24;
+    public final static int INFO = 24;
 
     /**
      * The array index for the
      * {@link #infoText} system color.
      * @see SystemColor#infoText
      */
-    @Native public final static int INFO_TEXT = 25;
+    public final static int INFO_TEXT = 25;
 
     /**
      * The number of system colors in the array.
      */
-    @Native public final static int NUM_COLORS = 26;
+    public final static int NUM_COLORS = 26;
 
     /******************************************************************************************/
 
@@ -461,12 +457,11 @@ public final class SystemColor extends Color implements java.io.Serializable {
     };
 
     static {
-        AWTAccessor.setSystemColorAccessor(SystemColor::updateSystemColors);
-        updateSystemColors();
+      updateSystemColors();
     }
 
     /**
-     * Called from {@code <init>} and toolkit to update the above systemColors cache.
+     * Called from <init> & toolkit to update the above systemColors cache.
      */
     private static void updateSystemColors() {
         if (!GraphicsEnvironment.isHeadless()) {

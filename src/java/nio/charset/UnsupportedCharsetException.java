@@ -46,7 +46,7 @@ public class UnsupportedCharsetException
     private String charsetName;
 
     /**
-     * Constructs an instance of this class.
+     * Constructs an instance of this class. </p>
      *
      * @param  charsetName
      *         The name of the unsupported charset
@@ -57,7 +57,7 @@ public class UnsupportedCharsetException
     }
 
     /**
-     * Retrieves the name of the unsupported charset.
+     * Retrieves the name of the unsupported charset. </p>
      *
      * @return  The name of the unsupported charset
      */

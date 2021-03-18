@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -53,7 +53,6 @@ import java.util.Locale;
  * @see java.util.Collection
  */
 
-@SuppressWarnings("rawtypes")
 public interface BeanContext extends BeanContextChild, Collection, DesignMode, Visibility {
 
     /**
@@ -64,12 +63,10 @@ public interface BeanContext extends BeanContextChild, Collection, DesignMode, V
      * and is defined by the
      * <code>java.beans.Beans.instantiate()</code> method.
      *
-     * @return a javaBean named as a child of this
-     * <code>BeanContext</code>
      * @param beanName The name of the JavaBean to instantiate
      * as a child of this <code>BeanContext</code>
-     * @throws IOException if an IO problem occurs
-     * @throws ClassNotFoundException if the class identified
+     * @throws <code>IOException</code>
+     * @throws <code>ClassNotFoundException</code> if the class identified
      * by the beanName parameter is not found
      */
     Object instantiateChild(String beanName) throws IOException, ClassNotFoundException;
@@ -85,7 +82,7 @@ public interface BeanContext extends BeanContextChild, Collection, DesignMode, V
      * @return an <code>InputStream</code> for reading the resource,
      * or <code>null</code> if the resource could not
      * be found.
-     * @throws IllegalArgumentException if
+     * @throws <code>IllegalArgumentException</code> if
      * the resource is not valid
      */
     InputStream getResourceAsStream(String name, BeanContextChild bcc) throws IllegalArgumentException;
@@ -100,7 +97,7 @@ public interface BeanContext extends BeanContextChild, Collection, DesignMode, V
      * @param bcc the specified child
      * @return a <code>URL</code> for the named
      * resource for the specified child
-     * @throws IllegalArgumentException
+     * @throws <code>IllegalArgumentException</code>
      * if the resource is not valid
      */
     URL getResource(String name, BeanContextChild bcc) throws IllegalArgumentException;
@@ -111,7 +108,7 @@ public interface BeanContext extends BeanContextChild, Collection, DesignMode, V
       * this <code>BeanContext</code> whenever it adds
       * or removes a child <code>Component</code>(s).
       *
-      * @param bcml the BeanContextMembershipListener to be added
+      * @param bcml the <code>BeanContextMembershipListener</code> to be added
       */
     void addBeanContextMembershipListener(BeanContextMembershipListener bcml);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2001, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -27,13 +27,13 @@ package java.security;
 
 /**
  * This exception is thrown by
- * {@code doPrivileged(PrivilegedExceptionAction)} and
- * {@code doPrivileged(PrivilegedExceptionAction,
- * AccessControlContext context)} to indicate
+ * <code>doPrivileged(PrivilegedExceptionAction)</code> and
+ * <code>doPrivileged(PrivilegedExceptionAction,
+ * AccessControlContext context)</code> to indicate
  * that the action being performed threw a checked exception.  The exception
  * thrown by the action can be obtained by calling the
- * {@code getException} method.  In effect, an
- * {@code PrivilegedActionException} is a "wrapper"
+ * <code>getException</code> method.  In effect, an
+ * <code>PrivilegedActionException</code> is a "wrapper"
  * for an exception thrown by a privileged action.
  *
  * <p>As of release 1.4, this exception has been retrofitted to conform to
@@ -69,14 +69,14 @@ public class PrivilegedActionException extends Exception {
 
     /**
      * Returns the exception thrown by the privileged computation that
-     * resulted in this {@code PrivilegedActionException}.
+     * resulted in this <code>PrivilegedActionException</code>.
      *
      * <p>This method predates the general-purpose exception chaining facility.
      * The {@link Throwable#getCause()} method is now the preferred means of
      * obtaining this information.
      *
      * @return the exception thrown by the privileged computation that
-     *         resulted in this {@code PrivilegedActionException}.
+     *         resulted in this <code>PrivilegedActionException</code>.
      * @see PrivilegedExceptionAction
      * @see AccessController#doPrivileged(PrivilegedExceptionAction)
      * @see AccessController#doPrivileged(PrivilegedExceptionAction,
@@ -89,7 +89,7 @@ public class PrivilegedActionException extends Exception {
     /**
      * Returns the cause of this exception (the exception thrown by
      * the privileged computation that resulted in this
-     * {@code PrivilegedActionException}).
+     * <code>PrivilegedActionException</code>).
      *
      * @return  the cause of this exception.
      * @since   1.4

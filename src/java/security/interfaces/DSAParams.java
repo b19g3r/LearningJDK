@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 1998, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -42,23 +42,23 @@ import java.math.BigInteger;
 public interface DSAParams {
 
     /**
-     * Returns the prime, {@code p}.
+     * Returns the prime, <code>p</code>.
      *
-     * @return the prime, {@code p}.
+     * @return the prime, <code>p</code>.
      */
     public BigInteger getP();
 
     /**
-     * Returns the subprime, {@code q}.
+     * Returns the subprime, <code>q</code>.
      *
-     * @return the subprime, {@code q}.
+     * @return the subprime, <code>q</code>.
      */
     public BigInteger getQ();
 
     /**
-     * Returns the base, {@code g}.
+     * Returns the base, <code>g</code>.
      *
-     * @return the base, {@code g}.
+     * @return the base, <code>g</code>.
      */
     public BigInteger getG();
 }

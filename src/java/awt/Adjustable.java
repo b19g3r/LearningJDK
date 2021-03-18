@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -27,8 +27,6 @@ package java.awt;
 
 import java.awt.event.*;
 
-import java.lang.annotation.Native;
-
 /**
  * The interface for objects which have an adjustable numeric value
  * contained within a bounded range of values.
@@ -36,22 +34,23 @@ import java.lang.annotation.Native;
  * @author Amy Fowler
  * @author Tim Prinzing
  */
+
 public interface Adjustable {
 
     /**
      * Indicates that the <code>Adjustable</code> has horizontal orientation.
      */
-    @Native public static final int HORIZONTAL = 0;
+    public static final int HORIZONTAL = 0;
 
     /**
      * Indicates that the <code>Adjustable</code> has vertical orientation.
      */
-    @Native public static final int VERTICAL = 1;
+    public static final int VERTICAL = 1;
 
     /**
      * Indicates that the <code>Adjustable</code> has no orientation.
      */
-    @Native public static final int NO_ORIENTATION = 2;
+    public static final int NO_ORIENTATION = 2;
 
     /**
      * Gets the orientation of the adjustable object.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -134,7 +134,6 @@ public final class AclEntry {
         /**
          * Sets the type component of this builder.
          *
-         * @param   type  the component type
          * @return  this builder
          */
         public Builder setType(AclEntryType type) {
@@ -147,7 +146,6 @@ public final class AclEntry {
         /**
          * Sets the principal component of this builder.
          *
-         * @param   who  the principal component
          * @return  this builder
          */
         public Builder setPrincipal(UserPrincipal who) {
@@ -170,7 +168,6 @@ public final class AclEntry {
          * Sets the permissions component of this builder. On return, the
          * permissions component of this builder is a copy of the given set.
          *
-         * @param   perms  the permissions component
          * @return  this builder
          *
          * @throws  ClassCastException
@@ -178,15 +175,9 @@ public final class AclEntry {
          *          AclEntryPermission}
          */
         public Builder setPermissions(Set<AclEntryPermission> perms) {
-            if (perms.isEmpty()) {
-                // EnumSet.copyOf does not allow empty set
-                perms = Collections.emptySet();
-            } else {
-                // copy and check for erroneous elements
-                perms = EnumSet.copyOf(perms);
-                checkSet(perms, AclEntryPermission.class);
-            }
-
+            // copy and check for erroneous elements
+            perms = EnumSet.copyOf(perms);
+            checkSet(perms, AclEntryPermission.class);
             this.perms = perms;
             return this;
         }
@@ -196,7 +187,6 @@ public final class AclEntry {
          * permissions component of this builder is a copy of the permissions in
          * the given array.
          *
-         * @param   perms  the permissions component
          * @return  this builder
          */
         public Builder setPermissions(AclEntryPermission... perms) {
@@ -215,7 +205,6 @@ public final class AclEntry {
          * Sets the flags component of this builder. On return, the flags
          * component of this builder is a copy of the given set.
          *
-         * @param   flags  the flags component
          * @return  this builder
          *
          * @throws  ClassCastException
@@ -223,15 +212,9 @@ public final class AclEntry {
          *          AclEntryFlag}
          */
         public Builder setFlags(Set<AclEntryFlag> flags) {
-            if (flags.isEmpty()) {
-                // EnumSet.copyOf does not allow empty set
-                flags = Collections.emptySet();
-            } else {
-                // copy and check for erroneous elements
-                flags = EnumSet.copyOf(flags);
-                checkSet(flags, AclEntryFlag.class);
-            }
-
+            // copy and check for erroneous elements
+            flags = EnumSet.copyOf(flags);
+            checkSet(flags, AclEntryFlag.class);
             this.flags = flags;
             return this;
         }
@@ -241,7 +224,6 @@ public final class AclEntry {
          * component of this builder is a copy of the flags in the given
          * array.
          *
-         * @param   flags  the flags component
          * @return  this builder
          */
         public Builder setFlags(AclEntryFlag... flags) {
@@ -273,7 +255,9 @@ public final class AclEntry {
     /**
      * Constructs a new builder with the components of an existing ACL entry.
      *
-     * @param   entry  an ACL entry
+     * @param   entry
+     *          an ACL entry
+     *
      * @return  a new builder
      */
     public static Builder newBuilder(AclEntry entry) {
@@ -282,8 +266,6 @@ public final class AclEntry {
 
     /**
      * Returns the ACL entry type.
-     *
-     * @return the ACL entry type
      */
     public AclEntryType type() {
         return type;
@@ -291,8 +273,6 @@ public final class AclEntry {
 
     /**
      * Returns the principal component.
-     *
-     * @return the principal component
      */
     public UserPrincipal principal() {
         return who;
@@ -302,8 +282,6 @@ public final class AclEntry {
      * Returns a copy of the permissions component.
      *
      * <p> The returned set is a modifiable copy of the permissions.
-     *
-     * @return the permissions component
      */
     public Set<AclEntryPermission> permissions() {
         return new HashSet<AclEntryPermission>(perms);
@@ -313,8 +291,6 @@ public final class AclEntry {
      * Returns a copy of the flags component.
      *
      * <p> The returned set is a modifiable copy of the flags.
-     *
-     * @return the flags component
      */
     public Set<AclEntryFlag> flags() {
         return new HashSet<AclEntryFlag>(flags);

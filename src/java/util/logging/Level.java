@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -204,12 +204,6 @@ public class Level implements java.io.Serializable {
      * @throws NullPointerException if the name is null
      */
     protected Level(String name, int value, String resourceBundleName) {
-        this(name, value, resourceBundleName, true);
-    }
-
-    // private constructor to specify whether this instance should be added
-    // to the KnownLevel list from which Level.parse method does its look up
-    private Level(String name, int value, String resourceBundleName, boolean visible) {
         if (name == null) {
             throw new NullPointerException();
         }
@@ -218,9 +212,7 @@ public class Level implements java.io.Serializable {
         this.resourceBundleName = resourceBundleName;
         this.localizedLevelName = resourceBundleName == null ? name : null;
         this.cachedLocale = null;
-        if (visible) {
-            KnownLevel.add(this);
-        }
+        KnownLevel.add(this);
     }
 
     /**
@@ -262,17 +254,11 @@ public class Level implements java.io.Serializable {
     }
 
     private String computeLocalizedLevelName(Locale newLocale) {
-        // If this is a custom Level, load resource bundles on the
-        // classpath and return.
-        if (!defaultBundle.equals(resourceBundleName)) {
-            return ResourceBundle.getBundle(resourceBundleName, newLocale,
-                       ClassLoader.getSystemClassLoader()).getString(name);
-        }
-
-        // The default bundle "sun.util.logging.resources.logging" should only
-        // be loaded from the runtime; so use the extension class loader;
-        final ResourceBundle rb = ResourceBundle.getBundle(defaultBundle, newLocale);
+        ResourceBundle rb = ResourceBundle.getBundle(resourceBundleName, newLocale);
         final String localizedName = rb.getString(name);
+
+        final boolean isDefaultBundle = defaultBundle.equals(resourceBundleName);
+        if (!isDefaultBundle) return localizedName;
 
         // This is a trick to determine whether the name has been translated
         // or not. If it has not been translated, we need to use Locale.ROOT
@@ -479,7 +465,7 @@ public class Level implements java.io.Serializable {
         // Finally, look for a known level with the given localized name,
         // in the current default locale.
         // This is relatively expensive, but not excessively so.
-        level = KnownLevel.findByLocalizedLevelName(name);
+        level = KnownLevel.findByLocalizedName(name);
         if (level != null) {
             return level.levelObject;
         }
@@ -535,14 +521,13 @@ public class Level implements java.io.Serializable {
         private static Map<String, List<KnownLevel>> nameToLevels = new HashMap<>();
         private static Map<Integer, List<KnownLevel>> intToLevels = new HashMap<>();
         final Level levelObject;     // instance of Level class or Level subclass
-        final Level mirroredLevel;   // mirror of the custom Level
+        final Level mirroredLevel;   // instance of Level class
         KnownLevel(Level l) {
             this.levelObject = l;
             if (l.getClass() == Level.class) {
                 this.mirroredLevel = l;
             } else {
-                // this mirrored level object is hidden
-                this.mirroredLevel = new Level(l.name, l.value, l.resourceBundleName, false);
+                this.mirroredLevel = new Level(l.name, l.value, l.resourceBundleName);
             }
         }
 
@@ -600,19 +585,30 @@ public class Level implements java.io.Serializable {
             return null;
         }
 
+        // Returns a KnownLevel with the given localized name matching
+        // by calling the Level.getLocalizedName() method
+        static synchronized KnownLevel findByLocalizedName(String name) {
+            for (List<KnownLevel> levels : nameToLevels.values()) {
+                for (KnownLevel l : levels) {
+                    String lname = l.levelObject.getLocalizedName();
+                    if (name.equals(lname)) {
+                        return l;
+                    }
+                }
+            }
+            return null;
+        }
+
         static synchronized KnownLevel matches(Level l) {
             List<KnownLevel> list = nameToLevels.get(l.name);
             if (list != null) {
                 for (KnownLevel level : list) {
                     Level other = level.mirroredLevel;
-                    Class<? extends Level> type = level.levelObject.getClass();
                     if (l.value == other.value &&
                            (l.resourceBundleName == other.resourceBundleName ||
                                (l.resourceBundleName != null &&
                                 l.resourceBundleName.equals(other.resourceBundleName)))) {
-                        if (type == l.getClass()) {
-                            return level;
-                        }
+                        return level;
                     }
                 }
             }

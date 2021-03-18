@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -31,11 +31,11 @@ import sun.misc.JavaLangAccess;
 import sun.misc.SharedSecrets;
 import sun.misc.VM;
 
-final class Finalizer extends FinalReference<Object> { /* Package-private; must be in
-                                                          same package as the Reference
-                                                          class */
+final class Finalizer extends FinalReference { /* Package-private; must be in
+                                                  same package as the Reference
+                                                  class */
 
-    private static ReferenceQueue<Object> queue = new ReferenceQueue<>();
+    private static ReferenceQueue queue = new ReferenceQueue();
     private static Finalizer unfinalized = null;
     private static final Object lock = new Object();
 
@@ -82,10 +82,6 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         add();
     }
 
-    static ReferenceQueue<Object> getQueue() {
-        return queue;
-    }
-
     /* Invoked by VM */
     static void register(Object finalizee) {
         new Finalizer(finalizee);
@@ -126,18 +122,18 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         AccessController.doPrivileged(
             new PrivilegedAction<Void>() {
                 public Void run() {
-                    ThreadGroup tg = Thread.currentThread().getThreadGroup();
-                    for (ThreadGroup tgn = tg;
-                         tgn != null;
-                         tg = tgn, tgn = tg.getParent());
-                    Thread sft = new Thread(tg, proc, "Secondary finalizer");
-                    sft.start();
-                    try {
-                        sft.join();
-                    } catch (InterruptedException x) {
-                        Thread.currentThread().interrupt();
-                    }
-                    return null;
+                ThreadGroup tg = Thread.currentThread().getThreadGroup();
+                for (ThreadGroup tgn = tg;
+                     tgn != null;
+                     tg = tgn, tgn = tg.getParent());
+                Thread sft = new Thread(tg, proc, "Secondary finalizer");
+                sft.start();
+                try {
+                    sft.join();
+                } catch (InterruptedException x) {
+                    /* Ignore */
+                }
+                return null;
                 }});
     }
 
@@ -150,7 +146,6 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         forkSecondaryFinalizer(new Runnable() {
             private volatile boolean running;
             public void run() {
-                // in case of recursive call to run()
                 if (running)
                     return;
                 final JavaLangAccess jla = SharedSecrets.getJavaLangAccess();
@@ -173,7 +168,6 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         forkSecondaryFinalizer(new Runnable() {
             private volatile boolean running;
             public void run() {
-                // in case of recursive call to run()
                 if (running)
                     return;
                 final JavaLangAccess jla = SharedSecrets.getJavaLangAccess();
@@ -195,7 +189,6 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
             super(g, "Finalizer");
         }
         public void run() {
-            // in case of recursive call to run()
             if (running)
                 return;
 

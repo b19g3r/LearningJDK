@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2004, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -30,7 +30,7 @@ package java.lang.reflect;
  *
  * @since 1.5
  */
-public interface GenericDeclaration extends AnnotatedElement {
+public interface GenericDeclaration {
     /**
      * Returns an array of {@code TypeVariable} objects that
      * represent the type variables declared by the generic

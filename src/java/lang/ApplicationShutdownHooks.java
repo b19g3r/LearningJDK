@@ -102,13 +102,9 @@ class ApplicationShutdownHooks {
             hook.start();
         }
         for (Thread hook : threads) {
-            while (true) {
-                try {
-                    hook.join();
-                    break;
-                } catch (InterruptedException ignored) {
-                }
-            }
+            try {
+                hook.join();
+            } catch (InterruptedException x) { }
         }
     }
 }

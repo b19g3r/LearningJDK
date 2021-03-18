@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -34,7 +34,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
-import java.lang.annotation.Native;
 import sun.awt.image.ImagingLib;
 
 /**
@@ -70,17 +69,17 @@ public class AffineTransformOp implements BufferedImageOp, RasterOp {
     /**
      * Nearest-neighbor interpolation type.
      */
-    @Native public static final int TYPE_NEAREST_NEIGHBOR = 1;
+    public static final int TYPE_NEAREST_NEIGHBOR = 1;
 
     /**
      * Bilinear interpolation type.
      */
-    @Native public static final int TYPE_BILINEAR = 2;
+    public static final int TYPE_BILINEAR = 2;
 
     /**
      * Bicubic interpolation type.
      */
-    @Native public static final int TYPE_BICUBIC = 3;
+    public static final int TYPE_BICUBIC = 3;
 
     int interpolationType = TYPE_NEAREST_NEIGHBOR;
 

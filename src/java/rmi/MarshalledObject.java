@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -34,13 +34,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamConstants;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import sun.rmi.server.MarshalInputStream;
 import sun.rmi.server.MarshalOutputStream;
-
-import sun.misc.ObjectInputFilter;
 
 /**
  * A <code>MarshalledObject</code> contains a byte stream with the serialized
@@ -95,9 +90,6 @@ public final class MarshalledObject<T> implements Serializable {
      */
     private int hash;
 
-    /** Filter used when creating the instance from a stream; may be null. */
-    private transient ObjectInputFilter objectInputFilter = null;
-
     /** Indicate compatibility with 1.2 version of class. */
     private static final long serialVersionUID = 8988374069173025854L;
 
@@ -141,23 +133,9 @@ public final class MarshalledObject<T> implements Serializable {
     }
 
     /**
-     * Reads in the state of the object and saves the stream's
-     * serialization filter to be used when the object is deserialized.
-     *
-     * @param stream the stream
-     * @throws IOException if an I/O error occurs
-     * @throws ClassNotFoundException if a class cannot be found
-     */
-    private void readObject(ObjectInputStream stream)
-        throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();     // read in all fields
-        objectInputFilter = ObjectInputFilter.Config.getObjectInputFilter(stream);
-    }
-
-    /**
      * Returns a new copy of the contained marshalledobject.  The internal
      * representation is deserialized with the semantics used for
-     * unmarshaling parameters for RMI calls.
+     * unmarshaling paramters for RMI calls.
      *
      * @return a copy of the contained object
      * @exception IOException if an <code>IOException</code> occurs while
@@ -177,8 +155,7 @@ public final class MarshalledObject<T> implements Serializable {
         ByteArrayInputStream lin =
             (locBytes == null ? null : new ByteArrayInputStream(locBytes));
         MarshalledObjectInputStream in =
-            new MarshalledObjectInputStream(bin, lin, objectInputFilter);
-        @SuppressWarnings("unchecked")
+            new MarshalledObjectInputStream(bin, lin);
         T obj = (T) in.readObject();
         in.close();
         return obj;
@@ -204,7 +181,7 @@ public final class MarshalledObject<T> implements Serializable {
      * in the serialized representation.
      *
      * @param obj the object to compare with this <code>MarshalledObject</code>
-     * @return <code>true</code> if the argument contains an equivalent
+     * @return <code>true</code> if the argument contains an equaivalent
      * serialized object; <code>false</code> otherwise
      * @since 1.2
      */
@@ -213,7 +190,7 @@ public final class MarshalledObject<T> implements Serializable {
             return true;
 
         if (obj != null && obj instanceof MarshalledObject) {
-            MarshalledObject<?> other = (MarshalledObject<?>) obj;
+            MarshalledObject other = (MarshalledObject) obj;
 
             // if either is a ref to null, both must be
             if (objBytes == null || other.objBytes == null)
@@ -317,24 +294,11 @@ public final class MarshalledObject<T> implements Serializable {
          * <code>null</code>, then all annotations will be
          * <code>null</code>.
          */
-        MarshalledObjectInputStream(InputStream objIn, InputStream locIn,
-                    ObjectInputFilter filter)
+        MarshalledObjectInputStream(InputStream objIn, InputStream locIn)
             throws IOException
         {
             super(objIn);
             this.locIn = (locIn == null ? null : new ObjectInputStream(locIn));
-            if (filter != null) {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    @Override
-                    public Void run() {
-                        ObjectInputFilter.Config.setObjectInputFilter(MarshalledObjectInputStream.this, filter);
-                        if (MarshalledObjectInputStream.this.locIn != null) {
-                            ObjectInputFilter.Config.setObjectInputFilter(MarshalledObjectInputStream.this.locIn, filter);
-                        }
-                        return null;
-                    }
-                });
-            }
         }
 
         /**

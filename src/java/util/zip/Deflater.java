@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -261,12 +261,6 @@ class Deflater {
 
     /**
      * Sets the compression strategy to the specified value.
-     *
-     * <p> If the compression strategy is changed, the next invocation
-     * of {@code deflate} will compress the input available so far with
-     * the old strategy (and may be flushed); the new strategy will take
-     * effect only after that invocation.
-     *
      * @param strategy the new compression strategy
      * @exception IllegalArgumentException if the compression strategy is
      *                                     invalid
@@ -289,13 +283,7 @@ class Deflater {
     }
 
     /**
-     * Sets the compression level to the specified value.
-     *
-     * <p> If the compression level is changed, the next invocation
-     * of {@code deflate} will compress the input available so far
-     * with the old level (and may be flushed); the new level will
-     * take effect only after that invocation.
-     *
+     * Sets the current compression level to the specified value.
      * @param level the new compression level (0-9)
      * @exception IllegalArgumentException if the compression level is invalid
      */
@@ -318,9 +306,7 @@ class Deflater {
      * should be called in order to provide more input
      */
     public boolean needsInput() {
-        synchronized (zsRef) {
-            return len <= 0;
-        }
+        return len <= 0;
     }
 
     /**
@@ -475,7 +461,7 @@ class Deflater {
     }
 
     /**
-     * Returns the total number of uncompressed bytes input so far.
+     * Returns the total number of uncompressed bytes input so far.</p>
      *
      * @return the total (non-negative) number of uncompressed bytes input so far
      * @since 1.5
@@ -501,7 +487,7 @@ class Deflater {
     }
 
     /**
-     * Returns the total number of compressed bytes output so far.
+     * Returns the total number of compressed bytes output so far.</p>
      *
      * @return the total (non-negative) number of compressed bytes output so far
      * @since 1.5

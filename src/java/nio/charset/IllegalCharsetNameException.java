@@ -46,7 +46,7 @@ public class IllegalCharsetNameException
     private String charsetName;
 
     /**
-     * Constructs an instance of this class.
+     * Constructs an instance of this class. </p>
      *
      * @param  charsetName
      *         The illegal charset name
@@ -57,7 +57,7 @@ public class IllegalCharsetNameException
     }
 
     /**
-     * Retrieves the illegal charset name.
+     * Retrieves the illegal charset name. </p>
      *
      * @return  The illegal charset name
      */

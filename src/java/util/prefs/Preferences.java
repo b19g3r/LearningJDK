@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -134,52 +134,52 @@ import java.lang.Double;
  * subsequently restore from the backup.
  *
  * <p>The XML document has the following DOCTYPE declaration:
- * <pre>{@code
- * <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
- * }</pre>
+ * <pre>
+ * &lt;!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd"&gt;
+ * </pre>
  * Note that the system URI (http://java.sun.com/dtd/preferences.dtd) is
  * <i>not</i> accessed when exporting or importing preferences; it merely
  * serves as a string to uniquely identify the DTD, which is:
- * <pre>{@code
- *    <?xml version="1.0" encoding="UTF-8"?>
+ * <pre>
+ *    &lt;?xml version="1.0" encoding="UTF-8"?&gt;
  *
- *    <!-- DTD for a Preferences tree. -->
+ *    &lt;!-- DTD for a Preferences tree. --&gt;
  *
- *    <!-- The preferences element is at the root of an XML document
- *         representing a Preferences tree. -->
- *    <!ELEMENT preferences (root)>
+ *    &lt;!-- The preferences element is at the root of an XML document
+ *         representing a Preferences tree. --&gt;
+ *    &lt;!ELEMENT preferences (root)&gt;
  *
- *    <!-- The preferences element contains an optional version attribute,
- *          which specifies version of DTD. -->
- *    <!ATTLIST preferences EXTERNAL_XML_VERSION CDATA "0.0" >
+ *    &lt;!-- The preferences element contains an optional version attribute,
+ *          which specifies version of DTD. --&gt;
+ *    &lt;!ATTLIST preferences EXTERNAL_XML_VERSION CDATA "0.0" &gt
  *
- *    <!-- The root element has a map representing the root's preferences
- *         (if any), and one node for each child of the root (if any). -->
- *    <!ELEMENT root (map, node*) >
+ *    &lt;!-- The root element has a map representing the root's preferences
+ *         (if any), and one node for each child of the root (if any). --&gt;
+ *    &lt;!ELEMENT root (map, node*) &gt;
  *
- *    <!-- Additionally, the root contains a type attribute, which
- *         specifies whether it's the system or user root. -->
- *    <!ATTLIST root
- *              type (system|user) #REQUIRED >
+ *    &lt;!-- Additionally, the root contains a type attribute, which
+ *         specifies whether it's the system or user root. --&gt;
+ *    &lt;!ATTLIST root
+ *              type (system|user) #REQUIRED &gt;
  *
- *    <!-- Each node has a map representing its preferences (if any),
- *         and one node for each child (if any). -->
- *    <!ELEMENT node (map, node*) >
+ *    &lt;!-- Each node has a map representing its preferences (if any),
+ *         and one node for each child (if any). --&gt;
+ *    &lt;!ELEMENT node (map, node*) &gt;
  *
- *    <!-- Additionally, each node has a name attribute -->
- *    <!ATTLIST node
- *              name CDATA #REQUIRED >
+ *    &lt;!-- Additionally, each node has a name attribute --&gt;
+ *    &lt;!ATTLIST node
+ *              name CDATA #REQUIRED &gt;
  *
- *    <!-- A map represents the preferences stored at a node (if any). -->
- *    <!ELEMENT map (entry*) >
+ *    &lt;!-- A map represents the preferences stored at a node (if any). --&gt;
+ *    &lt;!ELEMENT map (entry*) &gt;
  *
- *    <!-- An entry represents a single preference, which is simply
- *          a key-value pair. -->
- *    <!ELEMENT entry EMPTY >
- *    <!ATTLIST entry
+ *    &lt;!-- An entry represents a single preference, which is simply
+ *          a key-value pair. --&gt;
+ *    &lt;!ELEMENT entry EMPTY &gt;
+ *    &lt;!ATTLIST entry
  *              key   CDATA #REQUIRED
- *              value CDATA #REQUIRED >
- * }</pre>
+ *              value CDATA #REQUIRED &gt;
+ * </pre>
  *
  * Every <tt>Preferences</tt> implementation must have an associated {@link
  * PreferencesFactory} implementation.  Every Java(TM) SE implementation must provide
@@ -256,9 +256,11 @@ public abstract class Preferences {
                                       .getContextClassLoader())
                         .newInstance();
                 } catch (Exception e) {
-                    throw new InternalError(
+                    InternalError error = new InternalError(
                         "Can't instantiate Preferences factory "
-                        + factoryName, e);
+                        + factoryName);
+                    error.initCause(e);
+                    throw error;
                 }
             }
         }
@@ -300,12 +302,13 @@ public abstract class Preferences {
         }
         try {
             return (PreferencesFactory)
-                Class.forName(platformFactory, false,
-                              Preferences.class.getClassLoader()).newInstance();
+                Class.forName(platformFactory, false, null).newInstance();
         } catch (Exception e) {
-            throw new InternalError(
+            InternalError error = new InternalError(
                 "Can't instantiate platform default Preferences factory "
-                + platformFactory, e);
+                + platformFactory);
+            error.initCause(e);
+            throw error;
         }
     }
 
@@ -419,7 +422,7 @@ public abstract class Preferences {
      * @throws IllegalArgumentException if the package has node preferences
      *         node associated with it.
      */
-    private static String nodeName(Class<?> c) {
+    private static String nodeName(Class c) {
         if (c.isArray())
             throw new IllegalArgumentException(
                 "Arrays have no associated preferences node.");
@@ -1161,9 +1164,9 @@ public abstract class Preferences {
      * This XML document is, in effect, an offline backup of the node.
      *
      * <p>The XML document will have the following DOCTYPE declaration:
-     * <pre>{@code
-     * <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
-     * }</pre>
+     * <pre>
+     * &lt;!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd"&gt;
+     * </pre>
      * The UTF-8 character encoding will be used.
      *
      * <p>This method is an exception to the general rule that the results of
@@ -1192,9 +1195,9 @@ public abstract class Preferences {
      * effect, an offline backup of the subtree rooted at the node.
      *
      * <p>The XML document will have the following DOCTYPE declaration:
-     * <pre>{@code
-     * <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
-     * }</pre>
+     * <pre>
+     * &lt;!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd"&gt;
+     * </pre>
      * The UTF-8 character encoding will be used.
      *
      * <p>This method is an exception to the general rule that the results of
@@ -1228,9 +1231,9 @@ public abstract class Preferences {
      * do not exist, the nodes will be created.
      *
      * <p>The XML document must have the following DOCTYPE declaration:
-     * <pre>{@code
-     * <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
-     * }</pre>
+     * <pre>
+     * &lt;!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd"&gt;
+     * </pre>
      * (This method is designed for use in conjunction with
      * {@link #exportNode(OutputStream)} and
      * {@link #exportSubtree(OutputStream)}.

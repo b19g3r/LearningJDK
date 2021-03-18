@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -52,7 +52,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     private boolean shut_wr = false;
 
     private SocketInputStream socketInputStream = null;
-    private SocketOutputStream socketOutputStream = null;
 
     /* number of threads using the FileDescriptor */
     protected int fdUseCount = 0;
@@ -79,12 +78,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      */
     static {
         java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction<Void>() {
-                public Void run() {
-                    System.loadLibrary("net");
-                    return null;
-                }
-            });
+                  new sun.security.action.LoadLibraryAction("net"));
     }
 
     /**
@@ -312,16 +306,11 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             ret = socketGetOption(opt, null);
             return new Integer(ret);
         case IP_TOS:
-            try {
-                ret = socketGetOption(opt, null);
-                if (ret == -1) { // ipv6 tos
-                    return trafficClass;
-                } else {
-                    return ret;
-                }
-            } catch (SocketException se) {
-                // TODO - should make better effort to read TOS or TCLASS
-                return trafficClass; // ipv6 tos
+            ret = socketGetOption(opt, null);
+            if (ret == -1) { // ipv6 tos
+                return new Integer(trafficClass);
+            } else {
+                return new Integer(ret);
             }
         case SO_KEEPALIVE:
             ret = socketGetOption(opt, null);
@@ -374,7 +363,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     /**
      * Binds the socket to the specified address of the specified local port.
      * @param address the address
-     * @param lport the port
+     * @param port the port
      */
     protected synchronized void bind(InetAddress address, int lport)
         throws IOException
@@ -416,13 +405,14 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * Gets an InputStream for this socket.
      */
     protected synchronized InputStream getInputStream() throws IOException {
-        synchronized (fdLock) {
-            if (isClosedOrPending())
-                throw new IOException("Socket Closed");
-            if (shut_rd)
-                throw new IOException("Socket input is shutdown");
-            if (socketInputStream == null)
-                socketInputStream = new SocketInputStream(this);
+        if (isClosedOrPending()) {
+            throw new IOException("Socket Closed");
+        }
+        if (shut_rd) {
+            throw new IOException("Socket input is shutdown");
+        }
+        if (socketInputStream == null) {
+            socketInputStream = new SocketInputStream(this);
         }
         return socketInputStream;
     }
@@ -435,15 +425,13 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
      * Gets an OutputStream for this socket.
      */
     protected synchronized OutputStream getOutputStream() throws IOException {
-        synchronized (fdLock) {
-            if (isClosedOrPending())
-                throw new IOException("Socket Closed");
-            if (shut_wr)
-                throw new IOException("Socket output is shutdown");
-            if (socketOutputStream == null)
-                socketOutputStream = new SocketOutputStream(this);
+        if (isClosedOrPending()) {
+            throw new IOException("Socket Closed");
         }
-        return socketOutputStream;
+        if (shut_wr) {
+            throw new IOException("Socket output is shutdown");
+        }
+        return new SocketOutputStream(this);
     }
 
     void setFileDescriptor(FileDescriptor fd) {
@@ -471,10 +459,10 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
 
         /*
-         * If connection has been reset or shut down for input, then return 0
-         * to indicate there are no buffered bytes.
+         * If connection has been reset then return 0 to indicate
+         * there are no buffered bytes.
          */
-        if (isConnectionReset() || shut_rd) {
+        if (isConnectionReset()) {
             return 0;
         }
 
@@ -723,4 +711,8 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
 
     public final static int SHUT_RD = 0;
     public final static int SHUT_WR = 1;
+}
+
+class InetAddressContainer {
+    InetAddress addr;
 }

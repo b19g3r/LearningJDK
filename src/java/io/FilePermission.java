@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Collections;
+import java.io.ObjectStreamField;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 import sun.security.util.SecurityConstants;
 
 /**
@@ -55,7 +59,7 @@ import sun.security.util.SecurityConstants;
  * a list of one or more comma-separated keywords. The possible keywords are
  * "read", "write", "execute", "delete", and "readlink". Their meaning is
  * defined as follows:
- *
+ * <P>
  * <DL>
  *    <DT> read <DD> read permission
  *    <DT> write <DD> write permission
@@ -76,7 +80,7 @@ import sun.security.util.SecurityConstants;
  * <P>
  * Be careful when granting FilePermissions. Think about the implications
  * of granting read and especially write access to various files and
- * directories. The "&lt;&lt;ALL FILES&gt;&gt;" permission with write action is
+ * directories. The "&lt;&lt;ALL FILES>>" permission with write action is
  * especially dangerous. This grants permission to write to the entire
  * file system. One thing this effectively allows is replacement of the
  * system binary, including the JVM runtime environment.
@@ -180,7 +184,9 @@ public final class FilePermission extends Permission implements Serializable {
      * @param mask the actions mask to use.
      *
      */
-    private void init(int mask) {
+    private void init(int mask)
+    {
+
         if ((mask & ALL) != mask)
                 throw new IllegalArgumentException("invalid actions mask");
 
@@ -272,7 +278,9 @@ public final class FilePermission extends Permission implements Serializable {
      *          If actions is <code>null</code>, empty or contains an action
      *          other than the specified possible actions.
      */
-    public FilePermission(String path, String actions) {
+
+    public FilePermission(String path, String actions)
+    {
         super(path);
         init(getMask(actions));
     }
@@ -289,7 +297,8 @@ public final class FilePermission extends Permission implements Serializable {
      */
 
     // package private for use by the FilePermissionCollection add method
-    FilePermission(String path, int mask) {
+    FilePermission(String path, int mask)
+    {
         super(path);
         init(mask);
     }
@@ -297,11 +306,11 @@ public final class FilePermission extends Permission implements Serializable {
     /**
      * Checks if this FilePermission object "implies" the specified permission.
      * <P>
-     * More specifically, this method returns true if:
+     * More specifically, this method returns true if:<p>
      * <ul>
-     * <li> <i>p</i> is an instanceof FilePermission,
+     * <li> <i>p</i> is an instanceof FilePermission,<p>
      * <li> <i>p</i>'s actions are a proper subset of this
-     * object's actions, and
+     * object's actions, and <p>
      * <li> <i>p</i>'s pathname is implied by this object's
      *      pathname. For example, "/tmp/*" implies "/tmp/foo", since
      *      "/tmp/*" encompasses all files in the "/tmp" directory,
@@ -332,6 +341,7 @@ public final class FilePermission extends Permission implements Serializable {
      * this FilePermission's path also implies that FilePermission's path.
      *
      * @param that the FilePermission to check against.
+     * @param exact return immediately if the masks are not equal
      * @return the effective mask
      */
     boolean impliesIgnoreMask(FilePermission that) {
@@ -380,7 +390,7 @@ public final class FilePermission extends Permission implements Serializable {
     /**
      * Checks two FilePermission objects for equality. Checks that <i>obj</i> is
      * a FilePermission, and has the same pathname and actions as this object.
-     *
+     * <P>
      * @param obj the object we are testing for equality with this object.
      * @return <code>true</code> if obj is a FilePermission, and has the same
      *          pathname and actions as this FilePermission object,
@@ -406,6 +416,7 @@ public final class FilePermission extends Permission implements Serializable {
      *
      * @return a hash code value for this object.
      */
+
     public int hashCode() {
         return 0;
     }
@@ -413,19 +424,18 @@ public final class FilePermission extends Permission implements Serializable {
     /**
      * Converts an actions String to an actions mask.
      *
-     * @param actions the action string.
+     * @param action the action string.
      * @return the actions mask.
      */
     private static int getMask(String actions) {
+
         int mask = NONE;
 
         // Null action valid?
         if (actions == null) {
             return mask;
         }
-
-        // Use object identity comparison against known-interned strings for
-        // performance benefit (these values are used heavily within the JDK).
+        // Check against use of constants (used heavily within the JDK)
         if (actions == SecurityConstants.FILE_READ_ACTION) {
             return READ;
         } else if (actions == SecurityConstants.FILE_WRITE_ACTION) {
@@ -521,7 +531,7 @@ public final class FilePermission extends Permission implements Serializable {
                 switch(a[i-matchlen]) {
                 case ',':
                     seencomma = true;
-                    break;
+                    /*FALLTHROUGH*/
                 case ' ': case '\r': case '\n':
                 case '\f': case '\t':
                     break;
@@ -544,6 +554,7 @@ public final class FilePermission extends Permission implements Serializable {
      *
      * @return the actions mask.
      */
+
     int getMask() {
         return mask;
     }
@@ -555,7 +566,8 @@ public final class FilePermission extends Permission implements Serializable {
      *
      * @return the canonical string representation of the actions.
      */
-    private static String getActions(int mask) {
+    private static String getActions(int mask)
+    {
         StringBuilder sb = new StringBuilder();
         boolean comma = false;
 
@@ -600,12 +612,14 @@ public final class FilePermission extends Permission implements Serializable {
      *
      * @return the canonical string representation of the actions.
      */
-    public String getActions() {
+    public String getActions()
+    {
         if (actions == null)
             actions = getActions(this.mask);
 
         return actions;
     }
+
 
     /**
      * Returns a new PermissionCollection object for storing FilePermission
@@ -638,6 +652,7 @@ public final class FilePermission extends Permission implements Serializable {
      * @return a new PermissionCollection object suitable for storing
      * FilePermissions.
      */
+
     public PermissionCollection newPermissionCollection() {
         return new FilePermissionCollection();
     }
@@ -699,20 +714,22 @@ public final class FilePermission extends Permission implements Serializable {
  */
 
 final class FilePermissionCollection extends PermissionCollection
-    implements Serializable
-{
+implements Serializable {
+
     // Not serialized; see serialization section at end of class
     private transient List<Permission> perms;
 
     /**
-     * Create an empty FilePermissionCollection object.
+     * Create an empty FilePermissions object.
+     *
      */
+
     public FilePermissionCollection() {
         perms = new ArrayList<>();
     }
 
     /**
-     * Adds a permission to the FilePermissionCollection. The key for the hash is
+     * Adds a permission to the FilePermissions. The key for the hash is
      * permission.path.
      *
      * @param permission the Permission object to add.
@@ -723,7 +740,9 @@ final class FilePermissionCollection extends PermissionCollection
      * @exception SecurityException - if this FilePermissionCollection object
      *                                has been marked readonly
      */
-    public void add(Permission permission) {
+
+    public void add(Permission permission)
+    {
         if (! (permission instanceof FilePermission))
             throw new IllegalArgumentException("invalid permission: "+
                                                permission);
@@ -740,14 +759,16 @@ final class FilePermissionCollection extends PermissionCollection
      * Check and see if this set of permissions implies the permissions
      * expressed in "permission".
      *
-     * @param permission the Permission object to compare
+     * @param p the Permission object to compare
      *
      * @return true if "permission" is a proper subset of a permission in
      * the set, false if not.
      */
-    public boolean implies(Permission permission) {
+
+    public boolean implies(Permission permission)
+    {
         if (! (permission instanceof FilePermission))
-            return false;
+                return false;
 
         FilePermission fp = (FilePermission) permission;
 
@@ -776,7 +797,8 @@ final class FilePermissionCollection extends PermissionCollection
      *
      * @return an enumeration of all the FilePermission objects.
      */
-    public Enumeration<Permission> elements() {
+
+    public Enumeration elements() {
         // Convert Iterator into Enumeration
         synchronized (this) {
             return Collections.enumeration(perms);
@@ -821,20 +843,17 @@ final class FilePermissionCollection extends PermissionCollection
     /*
      * Reads in a Vector of FilePermissions and saves them in the perms field.
      */
-    private void readObject(ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream in) throws IOException,
+    ClassNotFoundException {
         // Don't call defaultReadObject()
 
         // Read in serialized fields
         ObjectInputStream.GetField gfields = in.readFields();
 
         // Get the one we want
-        @SuppressWarnings("unchecked")
         Vector<Permission> permissions = (Vector<Permission>)gfields.get("permissions", null);
         perms = new ArrayList<>(permissions.size());
-        for (Permission perm : permissions) {
-            perms.add(perm);
-        }
+        perms.addAll(permissions);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2003, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -112,8 +112,8 @@ final class RBCollationTables {
         void fillInTables(boolean f2ary,
                           boolean swap,
                           UCompactIntArray map,
-                          Vector<Vector<EntryPair>> cTbl,
-                          Vector<int[]> eTbl,
+                          Vector cTbl,
+                          Vector eTbl,
                           IntHashtable cFlgs,
                           short mso,
                           short mto) {
@@ -155,18 +155,18 @@ final class RBCollationTables {
      *  table.
      *  @param ch the starting character of the contracting string
      */
-    Vector<EntryPair> getContractValues(int ch)
+    Vector getContractValues(int ch)
     {
         int index = mapping.elementAt(ch);
         return getContractValuesImpl(index - CONTRACTCHARINDEX);
     }
 
     //get contract values from contractTable by index
-    private Vector<EntryPair> getContractValuesImpl(int index)
+    private Vector getContractValuesImpl(int index)
     {
         if (index >= 0)
         {
-            return contractTable.elementAt(index);
+            return (Vector)contractTable.elementAt(index);
         }
         else // not found
         {
@@ -192,16 +192,17 @@ final class RBCollationTables {
       *
       * @see CollationElementIterator#getMaxExpansion
       */
-    int getMaxExpansion(int order) {
+    int getMaxExpansion(int order)
+    {
         int result = 1;
 
         if (expandTable != null) {
             // Right now this does a linear search through the entire
-            // expansion table.  If a collator had a large number of expansions,
+            // expandsion table.  If a collator had a large number of expansions,
             // this could cause a performance problem, but in practise that
             // rarely happens
             for (int i = 0; i < expandTable.size(); i++) {
-                int[] valueList = expandTable.elementAt(i);
+                int[] valueList = (int [])expandTable.elementAt(i);
                 int length = valueList.length;
 
                 if (length > result && valueList[length-1] == order) {
@@ -214,19 +215,20 @@ final class RBCollationTables {
     }
 
     /**
-     * Get the entry of hash table of the expanding string in the collation
-     * table.
-     * @param idx the index of the expanding string value list
+     *  Get the entry of hash table of the expanding string in the collation
+     *  table.
+     *  @param idx the index of the expanding string value list
      */
-    final int[] getExpandValueList(int idx) {
-        return expandTable.elementAt(idx - EXPANDCHARINDEX);
+    final int[] getExpandValueList(int order) {
+        return (int[])expandTable.elementAt(order - EXPANDCHARINDEX);
     }
 
     /**
-     * Get the comarison order of a character from the collation table.
-     * @return the comparison order of a character.
+     *  Get the comarison order of a character from the collation table.
+     *  @return the comparison order of a character.
      */
-    int getUnicodeOrder(int ch) {
+    int getUnicodeOrder(int ch)
+    {
         return mapping.elementAt(ch);
     }
 
@@ -258,9 +260,9 @@ final class RBCollationTables {
         }
     }
 
-    final static int getEntry(Vector<EntryPair> list, String name, boolean fwd) {
+    final static int getEntry(Vector list, String name, boolean fwd) {
         for (int i = 0; i < list.size(); i++) {
-            EntryPair pair = list.elementAt(i);
+            EntryPair pair = (EntryPair)list.elementAt(i);
             if (pair.fwd == fwd && pair.entryName.equals(name)) {
                 return i;
             }
@@ -292,8 +294,8 @@ final class RBCollationTables {
     private boolean seAsianSwapping = false;
 
     private UCompactIntArray mapping = null;
-    private Vector<Vector<EntryPair>> contractTable = null;
-    private Vector<int[]> expandTable = null;
+    private Vector contractTable = null;
+    private Vector expandTable = null;
     private IntHashtable contractFlags = null;
 
     private short maxSecOrder = 0;

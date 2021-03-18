@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -65,7 +65,6 @@ class WaitDispatchSupport implements SecondaryLoop {
 
     private AtomicBoolean keepBlockingEDT = new AtomicBoolean(false);
     private AtomicBoolean keepBlockingCT = new AtomicBoolean(false);
-    private AtomicBoolean afterExit = new AtomicBoolean(false);
 
     private static synchronized void initializeTimer() {
         if (timer == null) {
@@ -92,7 +91,7 @@ class WaitDispatchSupport implements SecondaryLoop {
      *
      * @param dispatchThread An event dispatch thread that
      *        should not stop dispatching events while waiting
-     * @param extCond A conditional object used to determine
+     * @param extCondition A conditional object used to determine
      *        if the loop should be terminated
      *
      * @since 1.7
@@ -109,7 +108,7 @@ class WaitDispatchSupport implements SecondaryLoop {
         this.condition = new Conditional() {
             @Override
             public boolean evaluate() {
-                if (log.isLoggable(PlatformLogger.Level.FINEST)) {
+                if (log.isLoggable(PlatformLogger.FINEST)) {
                     log.finest("evaluate(): blockingEDT=" + keepBlockingEDT.get() +
                                ", blockingCT=" + keepBlockingCT.get());
                 }
@@ -162,141 +161,118 @@ class WaitDispatchSupport implements SecondaryLoop {
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     @Override
     public boolean enter() {
-        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-            log.fine("enter(): blockingEDT=" + keepBlockingEDT.get() +
-                     ", blockingCT=" + keepBlockingCT.get());
-        }
+        log.fine("enter(): blockingEDT=" + keepBlockingEDT.get() +
+                 ", blockingCT=" + keepBlockingCT.get());
 
         if (!keepBlockingEDT.compareAndSet(false, true)) {
             log.fine("The secondary loop is already running, aborting");
             return false;
         }
-        try {
-            if (afterExit.get()) {
-                log.fine("Exit was called already, aborting");
-                return false;
-            }
 
-            final Runnable run = new Runnable() {
-                public void run() {
-                    log.fine("Starting a new event pump");
-                    if (filter == null) {
-                        dispatchThread.pumpEvents(condition);
+        final Runnable run = new Runnable() {
+            public void run() {
+                log.fine("Starting a new event pump");
+                if (filter == null) {
+                    dispatchThread.pumpEvents(condition);
+                } else {
+                    dispatchThread.pumpEventsForFilter(condition, filter);
+                }
+            }
+        };
+
+        // We have two mechanisms for blocking: if we're on the
+        // dispatch thread, start a new event pump; if we're
+        // on any other thread, call wait() on the treelock
+
+        Thread currentThread = Thread.currentThread();
+        if (currentThread == dispatchThread) {
+            log.finest("On dispatch thread: " + dispatchThread);
+            if (interval != 0) {
+                log.finest("scheduling the timer for " + interval + " ms");
+                timer.schedule(timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (keepBlockingEDT.compareAndSet(true, false)) {
+                            wakeupEDT();
+                        }
+                    }
+                }, interval);
+            }
+            // Dispose SequencedEvent we are dispatching on the the current
+            // AppContext, to prevent us from hang - see 4531693 for details
+            SequencedEvent currentSE = KeyboardFocusManager.
+                getCurrentKeyboardFocusManager().getCurrentSequencedEvent();
+            if (currentSE != null) {
+                log.fine("Dispose current SequencedEvent: " + currentSE);
+                currentSE.dispose();
+            }
+            // In case the exit() method is called before starting
+            // new event pump it will post the waking event to EDT.
+            // The event will be handled after the the new event pump
+            // starts. Thus, the enter() method will not hang.
+            //
+            // Event pump should be privileged. See 6300270.
+            AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    run.run();
+                    return null;
+                }
+            });
+        } else {
+            log.finest("On non-dispatch thread: " + currentThread);
+            synchronized (getTreeLock()) {
+                if (filter != null) {
+                    dispatchThread.addEventFilter(filter);
+                }
+                try {
+                    EventQueue eq = dispatchThread.getEventQueue();
+                    eq.postEvent(new PeerEvent(this, run, PeerEvent.PRIORITY_EVENT));
+                    keepBlockingCT.set(true);
+                    if (interval > 0) {
+                        long currTime = System.currentTimeMillis();
+                        while (keepBlockingCT.get() &&
+                               ((extCondition != null) ? extCondition.evaluate() : true) &&
+                               (currTime + interval > System.currentTimeMillis()))
+                        {
+                            getTreeLock().wait(interval);
+                        }
                     } else {
-                        dispatchThread.pumpEventsForFilter(condition, filter);
-                    }
-                }
-            };
-
-            // We have two mechanisms for blocking: if we're on the
-            // dispatch thread, start a new event pump; if we're
-            // on any other thread, call wait() on the treelock
-
-            Thread currentThread = Thread.currentThread();
-            if (currentThread == dispatchThread) {
-                if (log.isLoggable(PlatformLogger.Level.FINEST)) {
-                    log.finest("On dispatch thread: " + dispatchThread);
-                }
-                if (interval != 0) {
-                    if (log.isLoggable(PlatformLogger.Level.FINEST)) {
-                        log.finest("scheduling the timer for " + interval + " ms");
-                    }
-                    timer.schedule(timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (keepBlockingEDT.compareAndSet(true, false)) {
-                                wakeupEDT();
-                            }
+                        while (keepBlockingCT.get() &&
+                               ((extCondition != null) ? extCondition.evaluate() : true))
+                        {
+                            getTreeLock().wait();
                         }
-                    }, interval);
-                }
-                // Dispose SequencedEvent we are dispatching on the current
-                // AppContext, to prevent us from hang - see 4531693 for details
-                SequencedEvent currentSE = KeyboardFocusManager.
-                        getCurrentKeyboardFocusManager().getCurrentSequencedEvent();
-                if (currentSE != null) {
-                    if (log.isLoggable(PlatformLogger.Level.FINE)) {
-                        log.fine("Dispose current SequencedEvent: " + currentSE);
                     }
-                    currentSE.dispose();
-                }
-                // In case the exit() method is called before starting
-                // new event pump it will post the waking event to EDT.
-                // The event will be handled after the new event pump
-                // starts. Thus, the enter() method will not hang.
-                //
-                // Event pump should be privileged. See 6300270.
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    public Void run() {
-                        run.run();
-                        return null;
-                    }
-                });
-            } else {
-                if (log.isLoggable(PlatformLogger.Level.FINEST)) {
-                    log.finest("On non-dispatch thread: " + currentThread);
-                }
-                keepBlockingCT.set(true);
-                synchronized (getTreeLock()) {
-                    if (afterExit.get()) return false;
+                    log.fine("waitDone " + keepBlockingEDT.get() + " " + keepBlockingCT.get());
+                } catch (InterruptedException e) {
+                    log.fine("Exception caught while waiting: " + e);
+                } finally {
                     if (filter != null) {
-                        dispatchThread.addEventFilter(filter);
-                    }
-                    try {
-                        EventQueue eq = dispatchThread.getEventQueue();
-                        eq.postEvent(new PeerEvent(this, run, PeerEvent.PRIORITY_EVENT));
-                        if (interval > 0) {
-                            long currTime = System.currentTimeMillis();
-                            while (keepBlockingCT.get() &&
-                                    ((extCondition != null) ? extCondition.evaluate() : true) &&
-                                    (currTime + interval > System.currentTimeMillis()))
-                            {
-                                getTreeLock().wait(interval);
-                            }
-                        } else {
-                            while (keepBlockingCT.get() &&
-                                    ((extCondition != null) ? extCondition.evaluate() : true))
-                            {
-                                getTreeLock().wait();
-                            }
-                        }
-                        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-                            log.fine("waitDone " + keepBlockingEDT.get() + " " + keepBlockingCT.get());
-                        }
-                    } catch (InterruptedException e) {
-                        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-                            log.fine("Exception caught while waiting: " + e);
-                        }
-                    } finally {
-                        if (filter != null) {
-                            dispatchThread.removeEventFilter(filter);
-                        }
+                        dispatchThread.removeEventFilter(filter);
                     }
                 }
+                // If the waiting process has been stopped because of the
+                // time interval passed or an exception occurred, the state
+                // should be changed
+                keepBlockingEDT.set(false);
+                keepBlockingCT.set(false);
             }
-            return true;
         }
-        finally {
-            keepBlockingEDT.set(false);
-            keepBlockingCT.set(false);
-            afterExit.set(false);
-        }
+
+        return true;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public boolean exit() {
-        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-            log.fine("exit(): blockingEDT=" + keepBlockingEDT.get() +
-                     ", blockingCT=" + keepBlockingCT.get());
-        }
-        afterExit.set(true);
-        if (keepBlockingEDT.getAndSet(false)) {
+        log.fine("exit(): blockingEDT=" + keepBlockingEDT.get() +
+                 ", blockingCT=" + keepBlockingCT.get());
+        if (keepBlockingEDT.compareAndSet(true, false)) {
             wakeupEDT();
             return true;
         }
@@ -319,9 +295,7 @@ class WaitDispatchSupport implements SecondaryLoop {
     };
 
     private void wakeupEDT() {
-        if (log.isLoggable(PlatformLogger.Level.FINEST)) {
-            log.finest("wakeupEDT(): EDT == " + dispatchThread);
-        }
+        log.finest("wakeupEDT(): EDT == " + dispatchThread);
         EventQueue eq = dispatchThread.getEventQueue();
         eq.postEvent(new PeerEvent(this, wakingRunnable, PeerEvent.PRIORITY_EVENT));
     }

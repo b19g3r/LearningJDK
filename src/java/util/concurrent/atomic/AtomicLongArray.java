@@ -34,9 +34,8 @@
  */
 
 package java.util.concurrent.atomic;
-import java.util.function.LongUnaryOperator;
-import java.util.function.LongBinaryOperator;
 import sun.misc.Unsafe;
+import java.util.*;
 
 /**
  * A {@code long} array in which elements may be updated atomically.
@@ -137,6 +136,7 @@ public class AtomicLongArray implements java.io.Serializable {
         unsafe.putOrderedLong(array, checkedByteOffset(i), newValue);
     }
 
+
     /**
      * Atomically sets the element at position {@code i} to the given value
      * and returns the old value.
@@ -146,7 +146,12 @@ public class AtomicLongArray implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndSet(int i, long newValue) {
-        return unsafe.getAndSetLong(array, checkedByteOffset(i), newValue);
+        long offset = checkedByteOffset(i);
+        while (true) {
+            long current = getRaw(offset);
+            if (compareAndSetRaw(offset, current, newValue))
+                return current;
+        }
     }
 
     /**
@@ -156,7 +161,7 @@ public class AtomicLongArray implements java.io.Serializable {
      * @param i the index
      * @param expect the expected value
      * @param update the new value
-     * @return {@code true} if successful. False return indicates that
+     * @return true if successful. False return indicates that
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(int i, long expect, long update) {
@@ -171,14 +176,14 @@ public class AtomicLongArray implements java.io.Serializable {
      * Atomically sets the element at position {@code i} to the given
      * updated value if the current value {@code ==} the expected value.
      *
-     * <p><a href="package-summary.html#weakCompareAndSet">May fail
-     * spuriously and does not provide ordering guarantees</a>, so is
-     * only rarely an appropriate alternative to {@code compareAndSet}.
+     * <p>May <a href="package-summary.html#Spurious">fail spuriously</a>
+     * and does not provide ordering guarantees, so is only rarely an
+     * appropriate alternative to {@code compareAndSet}.
      *
      * @param i the index
      * @param expect the expected value
      * @param update the new value
-     * @return {@code true} if successful
+     * @return true if successful.
      */
     public final boolean weakCompareAndSet(int i, long expect, long update) {
         return compareAndSet(i, expect, update);
@@ -212,7 +217,12 @@ public class AtomicLongArray implements java.io.Serializable {
      * @return the previous value
      */
     public final long getAndAdd(int i, long delta) {
-        return unsafe.getAndAddLong(array, checkedByteOffset(i), delta);
+        long offset = checkedByteOffset(i);
+        while (true) {
+            long current = getRaw(offset);
+            if (compareAndSetRaw(offset, current, current + delta))
+                return current;
+        }
     }
 
     /**
@@ -222,7 +232,7 @@ public class AtomicLongArray implements java.io.Serializable {
      * @return the updated value
      */
     public final long incrementAndGet(int i) {
-        return getAndAdd(i, 1) + 1;
+        return addAndGet(i, 1);
     }
 
     /**
@@ -232,7 +242,7 @@ public class AtomicLongArray implements java.io.Serializable {
      * @return the updated value
      */
     public final long decrementAndGet(int i) {
-        return getAndAdd(i, -1) - 1;
+        return addAndGet(i, -1);
     }
 
     /**
@@ -243,101 +253,13 @@ public class AtomicLongArray implements java.io.Serializable {
      * @return the updated value
      */
     public long addAndGet(int i, long delta) {
-        return getAndAdd(i, delta) + delta;
-    }
-
-    /**
-     * Atomically updates the element at index {@code i} with the results
-     * of applying the given function, returning the previous value. The
-     * function should be side-effect-free, since it may be re-applied
-     * when attempted updates fail due to contention among threads.
-     *
-     * @param i the index
-     * @param updateFunction a side-effect-free function
-     * @return the previous value
-     * @since 1.8
-     */
-    public final long getAndUpdate(int i, LongUnaryOperator updateFunction) {
         long offset = checkedByteOffset(i);
-        long prev, next;
-        do {
-            prev = getRaw(offset);
-            next = updateFunction.applyAsLong(prev);
-        } while (!compareAndSetRaw(offset, prev, next));
-        return prev;
-    }
-
-    /**
-     * Atomically updates the element at index {@code i} with the results
-     * of applying the given function, returning the updated value. The
-     * function should be side-effect-free, since it may be re-applied
-     * when attempted updates fail due to contention among threads.
-     *
-     * @param i the index
-     * @param updateFunction a side-effect-free function
-     * @return the updated value
-     * @since 1.8
-     */
-    public final long updateAndGet(int i, LongUnaryOperator updateFunction) {
-        long offset = checkedByteOffset(i);
-        long prev, next;
-        do {
-            prev = getRaw(offset);
-            next = updateFunction.applyAsLong(prev);
-        } while (!compareAndSetRaw(offset, prev, next));
-        return next;
-    }
-
-    /**
-     * Atomically updates the element at index {@code i} with the
-     * results of applying the given function to the current and
-     * given values, returning the previous value. The function should
-     * be side-effect-free, since it may be re-applied when attempted
-     * updates fail due to contention among threads.  The function is
-     * applied with the current value at index {@code i} as its first
-     * argument, and the given update as the second argument.
-     *
-     * @param i the index
-     * @param x the update value
-     * @param accumulatorFunction a side-effect-free function of two arguments
-     * @return the previous value
-     * @since 1.8
-     */
-    public final long getAndAccumulate(int i, long x,
-                                      LongBinaryOperator accumulatorFunction) {
-        long offset = checkedByteOffset(i);
-        long prev, next;
-        do {
-            prev = getRaw(offset);
-            next = accumulatorFunction.applyAsLong(prev, x);
-        } while (!compareAndSetRaw(offset, prev, next));
-        return prev;
-    }
-
-    /**
-     * Atomically updates the element at index {@code i} with the
-     * results of applying the given function to the current and
-     * given values, returning the updated value. The function should
-     * be side-effect-free, since it may be re-applied when attempted
-     * updates fail due to contention among threads.  The function is
-     * applied with the current value at index {@code i} as its first
-     * argument, and the given update as the second argument.
-     *
-     * @param i the index
-     * @param x the update value
-     * @param accumulatorFunction a side-effect-free function of two arguments
-     * @return the updated value
-     * @since 1.8
-     */
-    public final long accumulateAndGet(int i, long x,
-                                      LongBinaryOperator accumulatorFunction) {
-        long offset = checkedByteOffset(i);
-        long prev, next;
-        do {
-            prev = getRaw(offset);
-            next = accumulatorFunction.applyAsLong(prev, x);
-        } while (!compareAndSetRaw(offset, prev, next));
-        return next;
+        while (true) {
+            long current = getRaw(offset);
+            long next = current + delta;
+            if (compareAndSetRaw(offset, current, next))
+                return next;
+        }
     }
 
     /**

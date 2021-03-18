@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
-
-import sun.awt.AWTAccessor;
 import sun.awt.SunToolkit;
 
 /**
@@ -148,12 +146,12 @@ import sun.awt.SunToolkit;
  * {@link InputEvent#getMaskForButton(int) getMaskForButton(button)} method may be used
  * as button masks.
  * <p>
- * {@code MOUSE_DRAGGED} events are delivered to the {@code Component}
+ * <code>MOUSE_DRAGGED</code> events are delivered to the <code>Component</code>
  * in which the mouse button was pressed until the mouse button is released
  * (regardless of whether the mouse position is within the bounds of the
- * {@code Component}).  Due to platform-dependent Drag&amp;Drop implementations,
- * {@code MOUSE_DRAGGED} events may not be delivered during a native
- * Drag&amp;Drop operation.
+ * <code>Component</code>).  Due to platform-dependent Drag&Drop implementations,
+ * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
+ * Drag&Drop operation.
  *
  * In a multi-screen environment mouse drag events are delivered to the
  * <code>Component</code> even if the mouse position is outside the bounds of the
@@ -184,8 +182,8 @@ import sun.awt.SunToolkit;
  * @see MouseMotionAdapter
  * @see MouseMotionListener
  * @see MouseWheelListener
- * @see <a href="https://docs.oracle.com/javase/tutorial/uiswing/events/mouselistener.html">Tutorial: Writing a Mouse Listener</a>
- * @see <a href="https://docs.oracle.com/javase/tutorial/uiswing/events/mousemotionlistener.html">Tutorial: Writing a Mouse Motion Listener</a>
+ * @see <a href="http://java.sun.com/docs/books/tutorial/post1.0/ui/mouselistener.html">Tutorial: Writing a Mouse Listener</a>
+ * @see <a href="http://java.sun.com/docs/books/tutorial/post1.0/ui/mousemotionlistener.html">Tutorial: Writing a Mouse Motion Listener</a>
  *
  * @since 1.1
  */
@@ -329,14 +327,9 @@ public class MouseEvent extends InputEvent {
      * For all other events the count will be 0.
      *
      * @serial
-     * @see #getClickCount()
+     * @see #getClickCount().
      */
     int clickCount;
-
-    /**
-     * Indicates whether the event is a result of a touch event.
-     */
-    private boolean causedByTouchEvent;
 
     /**
      * Indicates which, if any, of the mouse buttons has changed state.
@@ -406,22 +399,11 @@ public class MouseEvent extends InputEvent {
             //whatever besides SunToolkit) could also operate.
             cachedNumberOfButtons = 3;
         }
-        AWTAccessor.setMouseEventAccessor(
-            new AWTAccessor.MouseEventAccessor() {
-                public boolean isCausedByTouchEvent(MouseEvent ev) {
-                    return ev.causedByTouchEvent;
-                }
-
-                public void setCausedByTouchEvent(MouseEvent ev,
-                    boolean causedByTouchEvent) {
-                    ev.causedByTouchEvent = causedByTouchEvent;
-                }
-            });
     }
 
     /**
      * Initialize JNI field and method IDs for fields that may be
-     *  accessed from C.
+       accessed from C.
      */
     private static native void initIDs();
 
@@ -506,15 +488,14 @@ public class MouseEvent extends InputEvent {
      * @param when         A long integer that gives the time the event occurred.
      *                     Passing negative or zero value
      *                     is not recommended
-     * @param modifiers    a modifier mask describing the modifier keys and mouse
-     *                     buttons (for example, shift, ctrl, alt, and meta) that
-     *                     are down during the event.
-     *                     Only extended modifiers are allowed to be used as a
-     *                     value for this parameter (see the {@link InputEvent#getModifiersEx}
-     *                     class for the description of extended modifiers).
+     * @param modifiers    The modifier keys down during event (e.g. shift, ctrl,
+     *                     alt, meta)
      *                     Passing negative parameter
      *                     is not recommended.
-     *                     Zero value means that no modifiers were passed
+     *                     Zero value means that no modifiers were passed.
+     *                     Use either an extended _DOWN_MASK or old _MASK modifiers,
+     *                     however do not mix models in the one event.
+     *                     The extended modifiers are preferred for using
      * @param x            The horizontal x coordinate for the mouse location.
      *                       It is allowed to pass negative values
      * @param y            The vertical y coordinate for the mouse location.
@@ -605,15 +586,14 @@ public class MouseEvent extends InputEvent {
      * @param when         A long integer that gives the time the event occurred.
      *                     Passing negative or zero value
      *                     is not recommended
-     * @param modifiers    a modifier mask describing the modifier keys and mouse
-     *                     buttons (for example, shift, ctrl, alt, and meta) that
-     *                     are down during the event.
-     *                     Only extended modifiers are allowed to be used as a
-     *                     value for this parameter (see the {@link InputEvent#getModifiersEx}
-     *                     class for the description of extended modifiers).
+     * @param modifiers    The modifier keys down during event (e.g. shift, ctrl,
+     *                     alt, meta)
      *                     Passing negative parameter
      *                     is not recommended.
-     *                     Zero value means that no modifiers were passed
+     *                     Zero value means that no modifiers were passed.
+     *                     Use either an extended _DOWN_MASK or old _MASK modifiers,
+     *                     however do not mix models in the one event.
+     *                     The extended modifiers are preferred for using
      * @param x            The horizontal x coordinate for the mouse location.
      *                       It is allowed to pass negative values
      * @param y            The vertical y coordinate for the mouse location.
@@ -677,15 +657,14 @@ public class MouseEvent extends InputEvent {
      * @param when         A long integer that gives the time the event occurred.
      *                     Passing negative or zero value
      *                     is not recommended
-     * @param modifiers    a modifier mask describing the modifier keys and mouse
-     *                     buttons (for example, shift, ctrl, alt, and meta) that
-     *                     are down during the event.
-     *                     Only extended modifiers are allowed to be used as a
-     *                     value for this parameter (see the {@link InputEvent#getModifiersEx}
-     *                     class for the description of extended modifiers).
+     * @param modifiers    The modifier keys down during event (e.g. shift, ctrl,
+     *                     alt, meta)
      *                     Passing negative parameter
      *                     is not recommended.
-     *                     Zero value means that no modifiers were passed
+     *                     Zero value means that no modifiers were passed.
+     *                     Use either an extended _DOWN_MASK or old _MASK modifiers,
+     *                     however do not mix models in the one event.
+     *                     The extended modifiers are preferred for using
      * @param x            The horizontal x coordinate for the mouse location.
      *                       It is allowed to pass negative values
      * @param y            The vertical y coordinate for the mouse location.
@@ -779,6 +758,7 @@ public class MouseEvent extends InputEvent {
 
             if (getModifiersEx() != 0) { //There is at least one more button in a pressed state.
                 if (id == MouseEvent.MOUSE_RELEASED || id == MouseEvent.MOUSE_CLICKED){
+                    System.out.println("MEvent. CASE!");
                     shouldExcludeButtonFromExtModifiers = true;
                 }
             }

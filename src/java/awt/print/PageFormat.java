@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2000, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -29,8 +29,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import java.lang.annotation.Native;
-
 /**
  * The <code>PageFormat</code> class describes the size and
  * orientation of a page to be printed.
@@ -46,21 +44,21 @@ public class PageFormat implements Cloneable
      *  Note that this is not the Macintosh landscape but
      *  is the Window's and PostScript landscape.
      */
-    @Native public static final int LANDSCAPE = 0;
+    public static final int LANDSCAPE = 0;
 
     /**
      *  The origin is at the top left of the paper with
      *  x running to the right and y running down the
      *  paper.
      */
-    @Native public static final int PORTRAIT = 1;
+    public static final int PORTRAIT = 1;
 
     /**
      *  The origin is at the top right of the paper with x
      *  running top to bottom and y running right to left.
      *  Note that this is the Macintosh landscape.
      */
-    @Native public static final int REVERSE_LANDSCAPE = 2;
+    public static final int REVERSE_LANDSCAPE = 2;
 
  /* Instance Variables */
 
@@ -286,7 +284,7 @@ public class PageFormat implements Cloneable
      * <code>PageFormat</code>.
      * @param paper the <code>Paper</code> object to which to set
      * the <code>Paper</code> object for this <code>PageFormat</code>.
-     * @exception NullPointerException
+     * @exception <code>NullPointerException</code>
      *              a null paper instance was passed as a parameter.
      * @see #getPaper
      */

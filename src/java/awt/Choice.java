@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -34,13 +34,12 @@ import java.io.IOException;
 
 import javax.accessibility.*;
 
-
 /**
  * The <code>Choice</code> class presents a pop-up menu of choices.
  * The current choice is displayed as the title of the menu.
  * <p>
  * The following code example produces a pop-up menu:
- *
+ * <p>
  * <hr><blockquote><pre>
  * Choice ColorChooser = new Choice();
  * ColorChooser.add("Green");
@@ -52,7 +51,7 @@ import javax.accessibility.*;
  * it appears as follows in its normal state:
  * <p>
  * <img src="doc-files/Choice-1.gif" alt="The following text describes the graphic"
- * style="float:center; margin: 7px 10px;">
+ * ALIGN=center HSPACE=10 VSPACE=7>
  * <p>
  * In the picture, <code>"Green"</code> is the current choice.
  * Pushing the mouse button down on the object causes a menu to
@@ -82,7 +81,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * @see #insert(String, int)
      * @see #remove(String)
      */
-    Vector<String> pItems;
+    Vector pItems;
 
     /**
      * The index of the current choice for this <code>Choice</code>
@@ -101,16 +100,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
     /*
      * JDK 1.1 serialVersionUID
      */
-    private static final long serialVersionUID = -4075310674757313071L;
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        /* initialize JNI field and method ids */
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
-    }
+     private static final long serialVersionUID = -4075310674757313071L;
 
     /**
      * Creates a new choice menu. The menu initially has no items in it.
@@ -126,7 +116,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      */
     public Choice() throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-        pItems = new Vector<>();
+        pItems = new Vector();
     }
 
     /**
@@ -188,7 +178,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * be called on the toolkit thread.
      */
     final String getItemImpl(int index) {
-        return pItems.elementAt(index);
+        return (String)pItems.elementAt(index);
     }
 
     /**
@@ -418,7 +408,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * an <code>ItemEvent</code>.  The only way to trigger an
      * <code>ItemEvent</code> is by user interaction.
      *
-     * @param      pos      the position of the selected item
+     * @param      pos      the positon of the selected item
      * @exception  IllegalArgumentException if the specified
      *                            position is greater than the
      *                            number of items or less than zero
@@ -521,7 +511,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * @since 1.4
      */
     public synchronized ItemListener[] getItemListeners() {
-        return getListeners(ItemListener.class);
+        return (ItemListener[])(getListeners(ItemListener.class));
     }
 
     /**
@@ -609,7 +599,7 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * This method is not called unless item events are
      * enabled for this component. Item events are enabled
      * when one of the following occurs:
-     * <ul>
+     * <p><ul>
      * <li>An <code>ItemListener</code> object is registered
      * via <code>addItemListener</code>.
      * <li>Item events are enabled via <code>enableEvents</code>.
@@ -717,10 +707,6 @@ public class Choice extends Component implements ItemSelectable, Accessible {
       }
     }
 
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
 
 /////////////////
 // Accessibility support

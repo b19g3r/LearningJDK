@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -43,7 +43,8 @@ import sun.reflect.ReflectionFactory;
  * @author Nakul Saraiya
  * @author Kenneth Russell
  */
-public class Modifier {
+public
+class Modifier {
 
     /*
      * Bootstrapping protocol between java.lang and java.lang.reflect
@@ -232,7 +233,7 @@ public class Modifier {
      * represented by {@code mod}
      */
     public static String toString(int mod) {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         int len;
 
         if ((mod & PUBLIC) != 0)        sb.append("public ");
@@ -339,30 +340,14 @@ public class Modifier {
     static final int BRIDGE    = 0x00000040;
     static final int VARARGS   = 0x00000080;
     static final int SYNTHETIC = 0x00001000;
-    static final int ANNOTATION  = 0x00002000;
+    static final int ANNOTATION= 0x00002000;
     static final int ENUM      = 0x00004000;
-    static final int MANDATED  = 0x00008000;
     static boolean isSynthetic(int mod) {
       return (mod & SYNTHETIC) != 0;
     }
 
-    static boolean isMandated(int mod) {
-      return (mod & MANDATED) != 0;
-    }
-
-    // Note on the FOO_MODIFIERS fields and fooModifiers() methods:
-    // the sets of modifiers are not guaranteed to be constants
-    // across time and Java SE releases. Therefore, it would not be
-    // appropriate to expose an external interface to this information
-    // that would allow the values to be treated as Java-level
-    // constants since the values could be constant folded and updates
-    // to the sets of modifiers missed. Thus, the fooModifiers()
-    // methods return an unchanging values for a given release, but a
-    // value that can potentially change over time.
-
     /**
-     * The Java source modifiers that can be applied to a class.
-     * @jls 8.1.1 Class Modifiers
+     * See JLSv3 section 8.1.1.
      */
     private static final int CLASS_MODIFIERS =
         Modifier.PUBLIC         | Modifier.PROTECTED    | Modifier.PRIVATE |
@@ -370,8 +355,7 @@ public class Modifier {
         Modifier.STRICT;
 
     /**
-     * The Java source modifiers that can be applied to an interface.
-     * @jls 9.1.1 Interface Modifiers
+     * See JLSv3 section 9.1.1.
      */
     private static final int INTERFACE_MODIFIERS =
         Modifier.PUBLIC         | Modifier.PROTECTED    | Modifier.PRIVATE |
@@ -379,15 +363,13 @@ public class Modifier {
 
 
     /**
-     * The Java source modifiers that can be applied to a constructor.
-     * @jls 8.8.3 Constructor Modifiers
+     * See JLSv3 section 8.8.3.
      */
     private static final int CONSTRUCTOR_MODIFIERS =
         Modifier.PUBLIC         | Modifier.PROTECTED    | Modifier.PRIVATE;
 
     /**
-     * The Java source modifiers that can be applied to a method.
-     * @jls8.4.3  Method Modifiers
+     * See JLSv3 section 8.4.3.
      */
     private static final int METHOD_MODIFIERS =
         Modifier.PUBLIC         | Modifier.PROTECTED    | Modifier.PRIVATE |
@@ -395,26 +377,12 @@ public class Modifier {
         Modifier.SYNCHRONIZED   | Modifier.NATIVE       | Modifier.STRICT;
 
     /**
-     * The Java source modifiers that can be applied to a field.
-     * @jls 8.3.1  Field Modifiers
+     * See JLSv3 section 8.3.1.
      */
     private static final int FIELD_MODIFIERS =
         Modifier.PUBLIC         | Modifier.PROTECTED    | Modifier.PRIVATE |
         Modifier.STATIC         | Modifier.FINAL        | Modifier.TRANSIENT |
         Modifier.VOLATILE;
-
-    /**
-     * The Java source modifiers that can be applied to a method or constructor parameter.
-     * @jls 8.4.1 Formal Parameters
-     */
-    private static final int PARAMETER_MODIFIERS =
-        Modifier.FINAL;
-
-    /**
-     *
-     */
-    static final int ACCESS_MODIFIERS =
-        Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE;
 
     /**
      * Return an {@code int} value OR-ing together the source language
@@ -433,7 +401,7 @@ public class Modifier {
      * Return an {@code int} value OR-ing together the source language
      * modifiers that can be applied to an interface.
      * @return an {@code int} value OR-ing together the source language
-     * modifiers that can be applied to an interface.
+     * modifiers that can be applied to an inteface.
      *
      * @jls 9.1.1 Interface Modifiers
      * @since 1.7
@@ -468,6 +436,7 @@ public class Modifier {
         return METHOD_MODIFIERS;
     }
 
+
     /**
      * Return an {@code int} value OR-ing together the source language
      * modifiers that can be applied to a field.
@@ -479,18 +448,5 @@ public class Modifier {
      */
     public static int fieldModifiers() {
         return FIELD_MODIFIERS;
-    }
-
-    /**
-     * Return an {@code int} value OR-ing together the source language
-     * modifiers that can be applied to a parameter.
-     * @return an {@code int} value OR-ing together the source language
-     * modifiers that can be applied to a parameter.
-     *
-     * @jls 8.4.1 Formal Parameters
-     * @since 1.8
-     */
-    public static int parameterModifiers() {
-        return PARAMETER_MODIFIERS;
     }
 }

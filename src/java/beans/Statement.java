@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -92,7 +92,7 @@ public class Statement {
     public Statement(Object target, String methodName, Object[] arguments) {
         this.target = target;
         this.methodName = methodName;
-        this.arguments = (arguments == null) ? emptyArray : arguments.clone();
+        this.arguments = (arguments == null) ? emptyArray : arguments;
     }
 
     /**
@@ -128,7 +128,7 @@ public class Statement {
      * @return the array of arguments
      */
     public Object[] getArguments() {
-        return this.arguments.clone();
+        return arguments;
     }
 
     /**
@@ -212,7 +212,7 @@ public class Statement {
         if (target == Class.class && methodName.equals("forName")) {
             return ClassFinder.resolveClass((String)arguments[0], this.loader);
         }
-        Class<?>[] argClasses = new Class<?>[arguments.length];
+        Class[] argClasses = new Class[arguments.length];
         for(int i = 0; i < arguments.length; i++) {
             argClasses[i] = (arguments[i] == null) ? null : arguments[i].getClass();
         }

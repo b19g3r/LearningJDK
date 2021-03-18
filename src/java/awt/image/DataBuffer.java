@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -41,8 +41,6 @@ import sun.java2d.StateTrackableDelegate;
 
 import sun.awt.image.SunWritableRaster;
 
-import java.lang.annotation.Native;
-
 /**
  * This class exists to wrap one or more data arrays.  Each data array in
  * the DataBuffer is referred to as a bank.  Accessor methods for getting
@@ -70,25 +68,25 @@ import java.lang.annotation.Native;
 public abstract class DataBuffer {
 
     /** Tag for unsigned byte data. */
-    @Native public static final int TYPE_BYTE  = 0;
+    public static final int TYPE_BYTE  = 0;
 
     /** Tag for unsigned short data. */
-    @Native public static final int TYPE_USHORT = 1;
+    public static final int TYPE_USHORT = 1;
 
     /** Tag for signed short data.  Placeholder for future use. */
-    @Native public static final int TYPE_SHORT = 2;
+    public static final int TYPE_SHORT = 2;
 
     /** Tag for int data. */
-    @Native public static final int TYPE_INT   = 3;
+    public static final int TYPE_INT   = 3;
 
     /** Tag for float data.  Placeholder for future use. */
-    @Native public static final int TYPE_FLOAT  = 4;
+    public static final int TYPE_FLOAT  = 4;
 
     /** Tag for double data.  Placeholder for future use. */
-    @Native public static final int TYPE_DOUBLE  = 5;
+    public static final int TYPE_DOUBLE  = 5;
 
     /** Tag for undefined data. */
-    @Native public static final int TYPE_UNDEFINED = 32;
+    public static final int TYPE_UNDEFINED = 32;
 
     /** The data type of this DataBuffer. */
     protected int dataType;

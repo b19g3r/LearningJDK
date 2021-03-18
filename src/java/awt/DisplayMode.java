@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,8 +25,6 @@
 
 package java.awt;
 
-import java.lang.annotation.Native;
-
 /**
  * The <code>DisplayMode</code> class encapsulates the bit depth, height,
  * width, and refresh rate of a <code>GraphicsDevice</code>. The ability to
@@ -35,7 +33,7 @@ import java.lang.annotation.Native;
  * (see {@link GraphicsDevice#isDisplayChangeSupported}).
  * <p>
  * For more information on full-screen exclusive mode API, see the
- * <a href="https://docs.oracle.com/javase/tutorial/extra/fullscreen/index.html">
+ * <a href="http://java.sun.com/docs/books/tutorial/extra/fullscreen/index.html">
  * Full-Screen Exclusive Mode API Tutorial</a>.
  *
  * @see GraphicsDevice
@@ -45,7 +43,6 @@ import java.lang.annotation.Native;
  * @author Michael Martak
  * @since 1.4
  */
-
 public final class DisplayMode {
 
     private Dimension size;
@@ -92,7 +89,7 @@ public final class DisplayMode {
      * display mode.
      * @see #getBitDepth
      */
-    @Native public final static int BIT_DEPTH_MULTI = -1;
+    public final static int BIT_DEPTH_MULTI = -1;
 
     /**
      * Returns the bit depth of the display, in bits per pixel.  This may be
@@ -110,7 +107,7 @@ public final class DisplayMode {
      * Value of the refresh rate if not known.
      * @see #getRefreshRate
      */
-    @Native public final static int REFRESH_RATE_UNKNOWN = 0;
+    public final static int REFRESH_RATE_UNKNOWN = 0;
 
     /**
      * Returns the refresh rate of the display, in hertz.  This may be

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2012, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -48,38 +48,25 @@ import java.util.Iterator;
  */
 public class Manifest implements Cloneable {
     // manifest main attributes
-    private final Attributes attr = new Attributes();
+    private Attributes attr = new Attributes();
 
     // manifest entries
-    private final Map<String, Attributes> entries = new HashMap<>();
-
-    // associated JarVerifier, not null when called by JarFile::getManifest.
-    private final JarVerifier jv;
+    private Map entries = new HashMap();
 
     /**
      * Constructs a new, empty Manifest.
      */
     public Manifest() {
-        jv = null;
     }
 
     /**
      * Constructs a new Manifest from the specified input stream.
      *
      * @param is the input stream containing manifest data
-     * @throws IOException if an I/O error has occurred
+     * @throws IOException if an I/O error has occured
      */
     public Manifest(InputStream is) throws IOException {
-        this(null, is);
-    }
-
-    /**
-     * Constructs a new Manifest from the specified input stream
-     * and associates it with a JarVerifier.
-     */
-    Manifest(JarVerifier jv, InputStream is) throws IOException {
         read(is);
-        this.jv = jv;
     }
 
     /**
@@ -90,7 +77,6 @@ public class Manifest implements Cloneable {
     public Manifest(Manifest man) {
         attr.putAll(man.getMainAttributes());
         entries.putAll(man.getEntries());
-        jv = man.jv;
     }
 
     /**
@@ -141,27 +127,6 @@ public class Manifest implements Cloneable {
     }
 
     /**
-     * Returns the Attributes for the specified entry name, if trusted.
-     *
-     * @param name entry name
-     * @return returns the same result as {@link #getAttributes(String)}
-     * @throws SecurityException if the associated jar is signed but this entry
-     *      has been modified after signing (i.e. the section in the manifest
-     *      does not exist in SF files of all signers).
-     */
-    Attributes getTrustedAttributes(String name) {
-        // Note: Before the verification of MANIFEST.MF/.SF/.RSA files is done,
-        // jv.isTrustedManifestEntry() isn't able to detect MANIFEST.MF change.
-        // Users of this method should call SharedSecrets.javaUtilJarAccess()
-        // .ensureInitialization() first.
-        Attributes result = getAttributes(name);
-        if (result != null && jv != null && ! jv.isTrustedManifestEntry(name)) {
-            throw new SecurityException("Untrusted manifest entry: " + name);
-        }
-        return result;
-    }
-
-    /**
      * Clears the main Attributes as well as the entries in this Manifest.
      */
     public void clear() {
@@ -183,11 +148,11 @@ public class Manifest implements Cloneable {
         // Write out the main attributes for the manifest
         attr.writeMain(dos);
         // Now write out the pre-entry attributes
-        Iterator<Map.Entry<String, Attributes>> it = entries.entrySet().iterator();
+        Iterator it = entries.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, Attributes> e = it.next();
+            Map.Entry e = (Map.Entry)it.next();
             StringBuffer buffer = new StringBuffer("Name: ");
-            String value = e.getKey();
+            String value = (String)e.getKey();
             if (value != null) {
                 byte[] vb = value.getBytes("UTF8");
                 value = new String(vb, 0, 0, vb.length);
@@ -196,7 +161,7 @@ public class Manifest implements Cloneable {
             buffer.append("\r\n");
             make72Safe(buffer);
             dos.writeBytes(buffer.toString());
-            e.getValue().write(dos);
+            ((Attributes)e.getValue()).write(dos);
         }
         dos.flush();
     }
@@ -374,7 +339,7 @@ public class Manifest implements Cloneable {
                     return -1;
                 }
             }
-            return Byte.toUnsignedInt(buf[pos++]);
+            return buf[pos++] & 0xff;
         }
 
         public int read(byte[] b, int off, int len) throws IOException {

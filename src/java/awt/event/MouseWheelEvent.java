@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -26,8 +26,6 @@
 package java.awt.event;
 
 import java.awt.Component;
-
-import java.lang.annotation.Native;
 
 /**
  * An event which indicates that the mouse wheel was rotated in a component.
@@ -107,7 +105,7 @@ public class MouseWheelEvent extends MouseEvent {
      *
      * @see #getScrollType
      */
-    @Native public static final int WHEEL_UNIT_SCROLL = 0;
+    public static final int WHEEL_UNIT_SCROLL = 0;
 
     /**
      * Constant representing scrolling by a "block" (like scrolling
@@ -115,7 +113,7 @@ public class MouseWheelEvent extends MouseEvent {
      *
      * @see #getScrollType
      */
-    @Native public static final int WHEEL_BLOCK_SCROLL = 1;
+    public static final int WHEEL_BLOCK_SCROLL = 1;
 
     /**
      * Indicates what sort of scrolling should take place in response to this

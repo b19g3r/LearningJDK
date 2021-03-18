@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2006, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -55,7 +55,6 @@ import java.awt.geom.Rectangle2D;
 import java.text.AttributedString;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
-import java.text.CharacterIterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -223,7 +222,7 @@ import sun.text.CodePointIterator;
  * baseline-relative coordinates map the 'x' coordinate to the
  * distance along the baseline, (positive x is forward along the
  * baseline), and the 'y' coordinate to a distance along the
- * perpendicular to the baseline at 'x' (positive y is 90 degrees
+ * perpendicular to the baseline at 'x' (postitive y is 90 degrees
  * clockwise from the baseline vector).  Values in standard
  * coordinates are measured along the x and y axes, with 0,0 at the
  * origin of the TextLayout.  Documentation for each relevant API
@@ -337,7 +336,7 @@ public final class TextLayout implements Cloneable {
                                           TextHitInfo hit2,
                                           TextLayout layout) {
 
-            // default implementation just calls private method on layout
+            // default implmentation just calls private method on layout
             return layout.getStrongHit(hit1, hit2);
         }
     }
@@ -383,7 +382,7 @@ public final class TextLayout implements Cloneable {
             throw new IllegalArgumentException("Zero length string passed to TextLayout constructor.");
         }
 
-        Map<? extends Attribute, ?> attributes = null;
+        Map attributes = null;
         if (font.hasLayoutAttributes()) {
             attributes = font.getAttributes();
         }
@@ -452,7 +451,7 @@ public final class TextLayout implements Cloneable {
     private static Font singleFont(char[] text,
                                    int start,
                                    int limit,
-                                   Map<? extends Attribute, ?> attributes) {
+                                   Map attributes) {
 
         if (attributes.get(TextAttribute.CHAR_REPLACEMENT) != null) {
             return null;
@@ -517,17 +516,14 @@ public final class TextLayout implements Cloneable {
         text.first();
         char[] chars = new char[len];
         int n = 0;
-        for (char c = text.first();
-             c != CharacterIterator.DONE;
-             c = text.next())
-        {
+        for (char c = text.first(); c != text.DONE; c = text.next()) {
             chars[n++] = c;
         }
 
         text.first();
         if (text.getRunLimit() == limit) {
 
-            Map<? extends Attribute, ?> attributes = text.getAttributes();
+            Map attributes = text.getAttributes();
             Font font = singleFont(chars, 0, len, attributes);
             if (font != null) {
                 fastInit(chars, font, attributes, frc);
@@ -565,9 +561,7 @@ public final class TextLayout implements Cloneable {
     /**
      * Initialize the paragraph-specific data.
      */
-    private void paragraphInit(byte aBaseline, CoreMetrics lm,
-                               Map<? extends Attribute, ?> paragraphAttrs,
-                               char[] text) {
+    private void paragraphInit(byte aBaseline, CoreMetrics lm, Map paragraphAttrs, char[] text) {
 
         baseline = aBaseline;
 
@@ -587,10 +581,7 @@ public final class TextLayout implements Cloneable {
      * all renderable by one font (ie no embedded graphics)
      * all on one baseline
      */
-    private void fastInit(char[] chars, Font font,
-                          Map<? extends Attribute, ?> attrs,
-                          FontRenderContext frc) {
-
+    private void fastInit(char[] chars, Font font, Map attrs, FontRenderContext frc) {
         // Object vf = attrs.get(TextAttribute.ORIENTATION);
         // isVerticalLine = TextAttribute.ORIENTATION_VERTICAL.equals(vf);
         isVerticalLine = false;
@@ -628,7 +619,7 @@ public final class TextLayout implements Cloneable {
             // and use it and its font to initialize the paragraph.
             // If not, use the first graphic to initialize.
 
-            Map<? extends Attribute, ?> paragraphAttrs = text.getAttributes();
+            Map paragraphAttrs = text.getAttributes();
 
             boolean haveFont = TextLine.advanceToFirstFont(text);
 
@@ -762,7 +753,7 @@ public final class TextLayout implements Cloneable {
             return super.clone();
         }
         catch (CloneNotSupportedException e) {
-            throw new InternalError(e);
+            throw new InternalError();
         }
     }
 
@@ -912,7 +903,7 @@ public final class TextLayout implements Cloneable {
      * The ascent is the distance from the top (right) of the
      * <code>TextLayout</code> to the baseline.  It is always either
      * positive or zero.  The ascent is sufficient to
-     * accommodate superscripted text and is the maximum of the sum of the
+     * accomodate superscripted text and is the maximum of the sum of the
      * ascent, offset, and baseline of each glyph.  The ascent is
      * the maximum ascent from the baseline of all the text in the
      * TextLayout.  It is in baseline-relative coordinates.
@@ -927,7 +918,7 @@ public final class TextLayout implements Cloneable {
      * Returns the descent of this <code>TextLayout</code>.
      * The descent is the distance from the baseline to the bottom (left) of
      * the <code>TextLayout</code>.  It is always either positive or zero.
-     * The descent is sufficient to accommodate subscripted text and is the
+     * The descent is sufficient to accomodate subscripted text and is the
      * maximum of the sum of the descent, offset, and baseline of each glyph.
      * This is the maximum descent from the baseline of all the text in
      * the TextLayout.  It is in baseline-relative coordinates.

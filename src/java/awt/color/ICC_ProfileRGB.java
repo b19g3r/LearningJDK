@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -23,8 +23,7 @@
  *
  */
 
-/*
- **********************************************************************
+/**********************************************************************
  **********************************************************************
  **********************************************************************
  *** COPYRIGHT (c) Eastman Kodak Company, 1997                      ***
@@ -36,7 +35,7 @@
 
 package java.awt.color;
 
-import sun.java2d.cmm.Profile;
+import java.awt.image.LookupTable;
 import sun.java2d.cmm.ProfileDeferralInfo;
 
 /**
@@ -83,6 +82,7 @@ import sun.java2d.cmm.ProfileDeferralInfo;
  * The inverse transform is performed by converting PCS XYZ components to linear
  * RGB components through the inverse of the above 3x3 matrix, and then converting
  * linear RGB to device RGB through inverses of the TRCs.
+ * <p>
  */
 
 
@@ -111,11 +111,11 @@ extends ICC_Profile {
     /**
      * Constructs an new <code>ICC_ProfileRGB</code> from a CMM ID.
      *
-     * @param p The CMM ID for the profile.
+     * @param ID The CMM ID for the profile.
      *
      */
-    ICC_ProfileRGB(Profile p) {
-        super(p);
+    ICC_ProfileRGB(long ID) {
+        super(ID);
     }
 
     /**

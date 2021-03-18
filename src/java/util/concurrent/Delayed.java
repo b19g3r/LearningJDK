@@ -35,13 +35,15 @@
 
 package java.util.concurrent;
 
+import java.util.*;
+
 /**
  * A mix-in style interface for marking objects that should be
  * acted upon after a given delay.
  *
  * <p>An implementation of this interface must define a
- * {@code compareTo} method that provides an ordering consistent with
- * its {@code getDelay} method.
+ * <tt>compareTo</tt> method that provides an ordering consistent with
+ * its <tt>getDelay</tt> method.
  *
  * @since 1.5
  * @author Doug Lea

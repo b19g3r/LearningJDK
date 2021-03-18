@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,7 +25,6 @@
 
 package java.lang;
 
-import java.lang.reflect.AnnotatedElement;
 import java.io.InputStream;
 import java.util.Enumeration;
 
@@ -48,11 +47,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import java.lang.annotation.Annotation;
 import sun.net.www.ParseUtil;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-
-import java.lang.annotation.Annotation;
 
 /**
  * {@code Package} objects contain version information
@@ -77,18 +75,18 @@ import java.lang.annotation.Annotation;
  * by the following formal grammar:
  * <blockquote>
  * <dl>
- * <dt><i>SpecificationVersion:</i>
- * <dd><i>Digits RefinedVersion<sub>opt</sub></i>
+ * <dt><i>SpecificationVersion:
+ * <dd>Digits RefinedVersion<sub>opt</sub></i>
 
- * <dt><i>RefinedVersion:</i>
+ * <p><dt><i>RefinedVersion:</i>
  * <dd>{@code .} <i>Digits</i>
  * <dd>{@code .} <i>Digits RefinedVersion</i>
  *
- * <dt><i>Digits:</i>
- * <dd><i>Digit</i>
- * <dd><i>Digits</i>
+ * <p><dt><i>Digits:
+ * <dd>Digit
+ * <dd>Digits</i>
  *
- * <dt><i>Digit:</i>
+ * <p><dt><i>Digit:</i>
  * <dd>any character for which {@link Character#isDigit} returns {@code true},
  * e.g. 0, 1, 2, ...
  * </dl>
@@ -321,7 +319,7 @@ public class Package implements java.lang.reflect.AnnotatedElement {
      * attributes are defined in the manifests that accompany
      * the classes.
      *
-     * @param c the class to get the package of.
+     * @param class the class to get the package of.
      * @return the package of the class. It may be null if no package
      *          information is available from the archive or codebase.  */
     static Package getPackage(Class<?> c) {
@@ -391,22 +389,12 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     }
 
     /**
-     * {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      * @since 1.5
      */
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-        return AnnotatedElement.super.isAnnotationPresent(annotationClass);
-    }
-
-    /**
-     * @throws NullPointerException {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public  <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationClass) {
-        return getPackageInfo().getAnnotationsByType(annotationClass);
+    public boolean isAnnotationPresent(
+        Class<? extends Annotation> annotationClass) {
+        return getPackageInfo().isAnnotationPresent(annotationClass);
     }
 
     /**
@@ -414,24 +402,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
      */
     public Annotation[] getAnnotations() {
         return getPackageInfo().getAnnotations();
-    }
-
-    /**
-     * @throws NullPointerException {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass) {
-        return getPackageInfo().getDeclaredAnnotation(annotationClass);
-    }
-
-    /**
-     * @throws NullPointerException {@inheritDoc}
-     * @since 1.8
-     */
-    @Override
-    public <A extends Annotation> A[] getDeclaredAnnotationsByType(Class<A> annotationClass) {
-        return getPackageInfo().getDeclaredAnnotationsByType(annotationClass);
     }
 
     /**
@@ -444,13 +414,14 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     /**
      * Construct a package instance with the specified version
      * information.
-     * @param name the name of the package
+     * @param pkgName the name of the package
      * @param spectitle the title of the specification
      * @param specversion the version of the specification
      * @param specvendor the organization that maintains the specification
      * @param impltitle the title of the implementation
      * @param implversion the version of the implementation
      * @param implvendor the organization that maintains the implementation
+     * @return a new package for containing the specified information.
      */
     Package(String name,
             String spectitle, String specversion, String specvendor,
@@ -640,5 +611,5 @@ public class Package implements java.lang.reflect.AnnotatedElement {
     private final String implVendor;
     private final URL sealBase;
     private transient final ClassLoader loader;
-    private transient Class<?> packageInfo;
+    private transient Class packageInfo;
 }

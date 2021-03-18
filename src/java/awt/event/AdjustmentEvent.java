@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2008, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -27,8 +27,6 @@ package java.awt.event;
 
 import java.awt.Adjustable;
 import java.awt.AWTEvent;
-import java.lang.annotation.Native;
-
 
 /**
  * The adjustment event emitted by Adjustable objects like
@@ -76,27 +74,27 @@ public class AdjustmentEvent extends AWTEvent {
     /**
      * The unit increment adjustment type.
      */
-    @Native public static final int UNIT_INCREMENT      = 1;
+    public static final int UNIT_INCREMENT      = 1;
 
     /**
      * The unit decrement adjustment type.
      */
-    @Native public static final int UNIT_DECREMENT      = 2;
+    public static final int UNIT_DECREMENT      = 2;
 
     /**
      * The block decrement adjustment type.
      */
-    @Native public static final int BLOCK_DECREMENT     = 3;
+    public static final int BLOCK_DECREMENT     = 3;
 
     /**
      * The block increment adjustment type.
      */
-    @Native public static final int BLOCK_INCREMENT     = 4;
+    public static final int BLOCK_INCREMENT     = 4;
 
     /**
      * The absolute tracking adjustment type.
      */
-    @Native public static final int TRACK               = 5;
+    public static final int TRACK               = 5;
 
     /**
      * The adjustable object that fired the event.

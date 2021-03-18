@@ -38,19 +38,19 @@ import java.util.*;
 
 /**
  * Provides default implementations of {@link ExecutorService}
- * execution methods. This class implements the {@code submit},
- * {@code invokeAny} and {@code invokeAll} methods using a
- * {@link RunnableFuture} returned by {@code newTaskFor}, which defaults
+ * execution methods. This class implements the <tt>submit</tt>,
+ * <tt>invokeAny</tt> and <tt>invokeAll</tt> methods using a
+ * {@link RunnableFuture} returned by <tt>newTaskFor</tt>, which defaults
  * to the {@link FutureTask} class provided in this package.  For example,
- * the implementation of {@code submit(Runnable)} creates an
- * associated {@code RunnableFuture} that is executed and
- * returned. Subclasses may override the {@code newTaskFor} methods
- * to return {@code RunnableFuture} implementations other than
- * {@code FutureTask}.
+ * the implementation of <tt>submit(Runnable)</tt> creates an
+ * associated <tt>RunnableFuture</tt> that is executed and
+ * returned. Subclasses may override the <tt>newTaskFor</tt> methods
+ * to return <tt>RunnableFuture</tt> implementations other than
+ * <tt>FutureTask</tt>.
  *
- * <p><b>Extension example</b>. Here is a sketch of a class
+ * <p> <b>Extension example</b>. Here is a sketch of a class
  * that customizes {@link ThreadPoolExecutor} to use
- * a {@code CustomTask} class instead of the default {@code FutureTask}:
+ * a <tt>CustomTask</tt> class instead of the default <tt>FutureTask</tt>:
  *  <pre> {@code
  * public class CustomThreadPoolExecutor extends ThreadPoolExecutor {
  *
@@ -71,16 +71,15 @@ import java.util.*;
 public abstract class AbstractExecutorService implements ExecutorService {
 
     /**
-     * Returns a {@code RunnableFuture} for the given runnable and default
+     * Returns a <tt>RunnableFuture</tt> for the given runnable and default
      * value.
      *
      * @param runnable the runnable task being wrapped
      * @param value the default value for the returned future
-     * @param <T> the type of the given value
-     * @return a {@code RunnableFuture} which, when run, will run the
-     * underlying runnable and which, as a {@code Future}, will yield
+     * @return a <tt>RunnableFuture</tt> which when run will run the
+     * underlying runnable and which, as a <tt>Future</tt>, will yield
      * the given value as its result and provide for cancellation of
-     * the underlying task
+     * the underlying task.
      * @since 1.6
      */
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
@@ -88,14 +87,13 @@ public abstract class AbstractExecutorService implements ExecutorService {
     }
 
     /**
-     * Returns a {@code RunnableFuture} for the given callable task.
+     * Returns a <tt>RunnableFuture</tt> for the given callable task.
      *
      * @param callable the callable task being wrapped
-     * @param <T> the type of the callable's result
-     * @return a {@code RunnableFuture} which, when run, will call the
-     * underlying callable and which, as a {@code Future}, will yield
+     * @return a <tt>RunnableFuture</tt> which when run will call the
+     * underlying callable and which, as a <tt>Future</tt>, will yield
      * the callable's result as its result and provide for
-     * cancellation of the underlying task
+     * cancellation of the underlying task.
      * @since 1.6
      */
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
@@ -139,14 +137,14 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * the main mechanics of invokeAny.
      */
     private <T> T doInvokeAny(Collection<? extends Callable<T>> tasks,
-                              boolean timed, long nanos)
+                            boolean timed, long nanos)
         throws InterruptedException, ExecutionException, TimeoutException {
         if (tasks == null)
             throw new NullPointerException();
         int ntasks = tasks.size();
         if (ntasks == 0)
             throw new IllegalArgumentException();
-        ArrayList<Future<T>> futures = new ArrayList<Future<T>>(ntasks);
+        List<Future<T>> futures= new ArrayList<Future<T>>(ntasks);
         ExecutorCompletionService<T> ecs =
             new ExecutorCompletionService<T>(this);
 
@@ -160,7 +158,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
             // Record exceptions so that if we fail to obtain any
             // result, we can throw the last exception we got.
             ExecutionException ee = null;
-            final long deadline = timed ? System.nanoTime() + nanos : 0L;
+            long lastTime = timed ? System.nanoTime() : 0;
             Iterator<? extends Callable<T>> it = tasks.iterator();
 
             // Start one task for sure; the rest incrementally
@@ -182,7 +180,9 @@ public abstract class AbstractExecutorService implements ExecutorService {
                         f = ecs.poll(nanos, TimeUnit.NANOSECONDS);
                         if (f == null)
                             throw new TimeoutException();
-                        nanos = deadline - System.nanoTime();
+                        long now = System.nanoTime();
+                        nanos -= now - lastTime;
+                        lastTime = now;
                     }
                     else
                         f = ecs.take();
@@ -204,8 +204,8 @@ public abstract class AbstractExecutorService implements ExecutorService {
             throw ee;
 
         } finally {
-            for (int i = 0, size = futures.size(); i < size; i++)
-                futures.get(i).cancel(true);
+            for (Future<T> f : futures)
+                f.cancel(true);
         }
     }
 
@@ -229,7 +229,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
         throws InterruptedException {
         if (tasks == null)
             throw new NullPointerException();
-        ArrayList<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
+        List<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
         boolean done = false;
         try {
             for (Callable<T> t : tasks) {
@@ -237,8 +237,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
                 futures.add(f);
                 execute(f);
             }
-            for (int i = 0, size = futures.size(); i < size; i++) {
-                Future<T> f = futures.get(i);
+            for (Future<T> f : futures) {
                 if (!f.isDone()) {
                     try {
                         f.get();
@@ -251,39 +250,40 @@ public abstract class AbstractExecutorService implements ExecutorService {
             return futures;
         } finally {
             if (!done)
-                for (int i = 0, size = futures.size(); i < size; i++)
-                    futures.get(i).cancel(true);
+                for (Future<T> f : futures)
+                    f.cancel(true);
         }
     }
 
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                          long timeout, TimeUnit unit)
         throws InterruptedException {
-        if (tasks == null)
+        if (tasks == null || unit == null)
             throw new NullPointerException();
         long nanos = unit.toNanos(timeout);
-        ArrayList<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
+        List<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
         boolean done = false;
         try {
             for (Callable<T> t : tasks)
                 futures.add(newTaskFor(t));
 
-            final long deadline = System.nanoTime() + nanos;
-            final int size = futures.size();
+            long lastTime = System.nanoTime();
 
             // Interleave time checks and calls to execute in case
             // executor doesn't have any/much parallelism.
-            for (int i = 0; i < size; i++) {
-                execute((Runnable)futures.get(i));
-                nanos = deadline - System.nanoTime();
-                if (nanos <= 0L)
+            Iterator<Future<T>> it = futures.iterator();
+            while (it.hasNext()) {
+                execute((Runnable)(it.next()));
+                long now = System.nanoTime();
+                nanos -= now - lastTime;
+                lastTime = now;
+                if (nanos <= 0)
                     return futures;
             }
 
-            for (int i = 0; i < size; i++) {
-                Future<T> f = futures.get(i);
+            for (Future<T> f : futures) {
                 if (!f.isDone()) {
-                    if (nanos <= 0L)
+                    if (nanos <= 0)
                         return futures;
                     try {
                         f.get(nanos, TimeUnit.NANOSECONDS);
@@ -292,15 +292,17 @@ public abstract class AbstractExecutorService implements ExecutorService {
                     } catch (TimeoutException toe) {
                         return futures;
                     }
-                    nanos = deadline - System.nanoTime();
+                    long now = System.nanoTime();
+                    nanos -= now - lastTime;
+                    lastTime = now;
                 }
             }
             done = true;
             return futures;
         } finally {
             if (!done)
-                for (int i = 0, size = futures.size(); i < size; i++)
-                    futures.get(i).cancel(true);
+                for (Future<T> f : futures)
+                    f.cancel(true);
         }
     }
 

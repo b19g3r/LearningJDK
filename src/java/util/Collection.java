@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,10 +25,6 @@
 
 package java.util;
 
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 /**
  * The root interface in the <i>collection hierarchy</i>.  A collection
  * represents a group of objects, known as its <i>elements</i>.  Some
@@ -38,6 +34,8 @@ import java.util.stream.StreamSupport;
  * specific subinterfaces like <tt>Set</tt> and <tt>List</tt>.  This interface
  * is typically used to pass collections around and manipulate them where
  * maximum generality is desired.
+ *
+ * 容器框架中的根接口。
  *
  * <p><i>Bags</i> or <i>multisets</i> (unordered collections that may contain
  * duplicate elements) should implement this interface directly.
@@ -54,6 +52,10 @@ import java.util.stream.StreamSupport;
  * constructors) but all of the general-purpose <tt>Collection</tt>
  * implementations in the Java platform libraries comply.
  *
+ * 所有Collection实现都应该实现两个构造方法。
+ * 一个是无参构造方法，用来初始化一个空的Collection。
+ * 还一个是只有一个Collection类型的参数的构造方法，该构造方法的存在，允许用户轻松在不同Collection的实现之间转换。
+ *
  * <p>The "destructive" methods contained in this interface, that is, the
  * methods that modify the collection on which they operate, are specified to
  * throw <tt>UnsupportedOperationException</tt> if this collection does not
@@ -64,9 +66,12 @@ import java.util.stream.StreamSupport;
  * but is not required to, throw the exception if the collection to be added
  * is empty.
  *
- * <p><a name="optional-restrictions">
+ * 什么是破坏性的（destructive）方法？会修改当前collection的方法，就是破坏性方法。
+ * 调用破坏性方法时，如果当前对象不支持该方法，可以抛出UnsupportedOperationException异常。
+ *
+ * <p><a name="optional-restrictions"/>
  * Some collection implementations have restrictions on the elements that
- * they may contain.</a>  For example, some implementations prohibit null elements,
+ * they may contain.  For example, some implementations prohibit null elements,
  * and some have restrictions on the types of their elements.  Attempting to
  * add an ineligible element throws an unchecked exception, typically
  * <tt>NullPointerException</tt> or <tt>ClassCastException</tt>.  Attempting
@@ -79,6 +84,8 @@ import java.util.stream.StreamSupport;
  * Such exceptions are marked as "optional" in the specification for this
  * interface.
  *
+ * 不同的collection实现会有不同的限制，比如有些实现不允许包含null元素，还有的只能包含特定类型的元素。
+ *
  * <p>It is up to each collection to determine its own synchronization
  * policy.  In the absence of a stronger guarantee by the
  * implementation, undefined behavior may result from the invocation
@@ -86,6 +93,8 @@ import java.util.stream.StreamSupport;
  * thread; this includes direct invocations, passing the collection to
  * a method that might perform invocations, and using an existing
  * iterator to examine the collection.
+ *
+ * 每一种collection实现都需要实现自己的同步策略。本接口并强制规定某种同步策略。
  *
  * <p>Many methods in Collections Framework interfaces are defined in
  * terms of the {@link Object#equals(Object) equals} method.  For example,
@@ -104,22 +113,12 @@ import java.util.stream.StreamSupport;
  * the specified behavior of underlying {@link Object} methods wherever the
  * implementor deems it appropriate.
  *
- * <p>Some collection operations which perform recursive traversal of the
- * collection may fail with an exception for self-referential instances where
- * the collection directly or indirectly contains itself. This includes the
- * {@code clone()}, {@code equals()}, {@code hashCode()} and {@code toString()}
- * methods. Implementations may optionally handle the self-referential scenario,
- * however most current implementations do not do so.
+ * 许多容器方法，依赖对象的equals方法或者hashcode方法，但这并不是必须的。
+ * 引申：为什么覆盖了equals方法就一定要覆盖hashcode方法？
  *
  * <p>This interface is a member of the
  * <a href="{@docRoot}/../technotes/guides/collections/index.html">
  * Java Collections Framework</a>.
- *
- * @implSpec
- * The default method implementations (inherited or otherwise) do not apply any
- * synchronization protocol.  If a {@code Collection} implementation has a
- * specific synchronization protocol, then it must override default
- * implementations to apply that protocol.
  *
  * @param <E> the type of elements in this collection
  *
@@ -149,6 +148,8 @@ public interface Collection<E> extends Iterable<E> {
      * contains more than <tt>Integer.MAX_VALUE</tt> elements, returns
      * <tt>Integer.MAX_VALUE</tt>.
      *
+     * 如果元素个数超过了Integer.MAX_VALUE, 那么就返回Integer.MAX_VALUE.
+     *
      * @return the number of elements in this collection
      */
     int size();
@@ -165,6 +166,8 @@ public interface Collection<E> extends Iterable<E> {
      * More formally, returns <tt>true</tt> if and only if this collection
      * contains at least one element <tt>e</tt> such that
      * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
+     *
+     * 默认调用对象的equals方法。
      *
      * @param o element whose presence in this collection is to be tested
      * @return <tt>true</tt> if this collection contains the specified
@@ -198,6 +201,8 @@ public interface Collection<E> extends Iterable<E> {
      * maintained by this collection.  (In other words, this method must
      * allocate a new array even if this collection is backed by an array).
      * The caller is thus free to modify the returned array.
+     *
+     * 这个方法必须创建一个新的数组来保存对象引用。
      *
      * <p>This method acts as bridge between array-based and collection-based
      * APIs.
@@ -239,7 +244,9 @@ public interface Collection<E> extends Iterable<E> {
      * Note that <tt>toArray(new Object[0])</tt> is identical in function to
      * <tt>toArray()</tt>.
      *
-     * @param <T> the runtime type of the array to contain the collection
+     * 将一个Collection转换为指定类型（参数）的数组。如果参数给定的数组的大小大于当前容器的大小，
+     * 那么就讲容器中的元素放到该数组中返回，多出的数组空间置null。否则创建同类型的新数组返回。
+     *
      * @param a the array into which the elements of this collection are to be
      *        stored, if it is big enough; otherwise, a new array of the same
      *        runtime type is allocated for this purpose.
@@ -272,6 +279,10 @@ public interface Collection<E> extends Iterable<E> {
      * the invariant that a collection always contains the specified element
      * after this call returns.
      *
+     * 正常添加返回true。已经包含该对象，并且不能包含重复对象，返回false。
+     *
+     * 其它情况添加失败，抛出异常。
+     *
      * @param e element whose presence in this collection is to be ensured
      * @return <tt>true</tt> if this collection changed as a result of the
      *         call
@@ -296,6 +307,9 @@ public interface Collection<E> extends Iterable<E> {
      * this collection contains one or more such elements.  Returns
      * <tt>true</tt> if this collection contained the specified element (or
      * equivalently, if this collection changed as a result of the call).
+     *
+     * 如果容器中包含指定的元素，则移除并返回true。
+     * 如果容器中不包含指定的元素，返回false。
      *
      * @param o element to be removed from this collection, if present
      * @return <tt>true</tt> if an element was removed as a result of this call
@@ -341,6 +355,7 @@ public interface Collection<E> extends Iterable<E> {
      * specified collection is this collection, and this collection is
      * nonempty.)
      *
+     *
      * @param c collection containing elements to be added to this collection
      * @return <tt>true</tt> if this collection changed as a result of the call
      * @throws UnsupportedOperationException if the <tt>addAll</tt> operation
@@ -383,41 +398,6 @@ public interface Collection<E> extends Iterable<E> {
      * @see #contains(Object)
      */
     boolean removeAll(Collection<?> c);
-
-    /**
-     * Removes all of the elements of this collection that satisfy the given
-     * predicate.  Errors or runtime exceptions thrown during iteration or by
-     * the predicate are relayed to the caller.
-     *
-     * @implSpec
-     * The default implementation traverses all elements of the collection using
-     * its {@link #iterator}.  Each matching element is removed using
-     * {@link Iterator#remove()}.  If the collection's iterator does not
-     * support removal then an {@code UnsupportedOperationException} will be
-     * thrown on the first matching element.
-     *
-     * @param filter a predicate which returns {@code true} for elements to be
-     *        removed
-     * @return {@code true} if any elements were removed
-     * @throws NullPointerException if the specified filter is null
-     * @throws UnsupportedOperationException if elements cannot be removed
-     *         from this collection.  Implementations may throw this exception if a
-     *         matching element cannot be removed or if, in general, removal is not
-     *         supported.
-     * @since 1.8
-     */
-    default boolean removeIf(Predicate<? super E> filter) {
-        Objects.requireNonNull(filter);
-        boolean removed = false;
-        final Iterator<E> each = iterator();
-        while (each.hasNext()) {
-            if (filter.test(each.next())) {
-                each.remove();
-                removed = true;
-            }
-        }
-        return removed;
-    }
 
     /**
      * Retains only the elements in this collection that are contained in the
@@ -506,99 +486,4 @@ public interface Collection<E> extends Iterable<E> {
      * @see Object#equals(Object)
      */
     int hashCode();
-
-    /**
-     * Creates a {@link Spliterator} over the elements in this collection.
-     *
-     * Implementations should document characteristic values reported by the
-     * spliterator.  Such characteristic values are not required to be reported
-     * if the spliterator reports {@link Spliterator#SIZED} and this collection
-     * contains no elements.
-     *
-     * <p>The default implementation should be overridden by subclasses that
-     * can return a more efficient spliterator.  In order to
-     * preserve expected laziness behavior for the {@link #stream()} and
-     * {@link #parallelStream()}} methods, spliterators should either have the
-     * characteristic of {@code IMMUTABLE} or {@code CONCURRENT}, or be
-     * <em><a href="Spliterator.html#binding">late-binding</a></em>.
-     * If none of these is practical, the overriding class should describe the
-     * spliterator's documented policy of binding and structural interference,
-     * and should override the {@link #stream()} and {@link #parallelStream()}
-     * methods to create streams using a {@code Supplier} of the spliterator,
-     * as in:
-     * <pre>{@code
-     *     Stream<E> s = StreamSupport.stream(() -> spliterator(), spliteratorCharacteristics)
-     * }</pre>
-     * <p>These requirements ensure that streams produced by the
-     * {@link #stream()} and {@link #parallelStream()} methods will reflect the
-     * contents of the collection as of initiation of the terminal stream
-     * operation.
-     *
-     * @implSpec
-     * The default implementation creates a
-     * <em><a href="Spliterator.html#binding">late-binding</a></em> spliterator
-     * from the collections's {@code Iterator}.  The spliterator inherits the
-     * <em>fail-fast</em> properties of the collection's iterator.
-     * <p>
-     * The created {@code Spliterator} reports {@link Spliterator#SIZED}.
-     *
-     * @implNote
-     * The created {@code Spliterator} additionally reports
-     * {@link Spliterator#SUBSIZED}.
-     *
-     * <p>If a spliterator covers no elements then the reporting of additional
-     * characteristic values, beyond that of {@code SIZED} and {@code SUBSIZED},
-     * does not aid clients to control, specialize or simplify computation.
-     * However, this does enable shared use of an immutable and empty
-     * spliterator instance (see {@link Spliterators#emptySpliterator()}) for
-     * empty collections, and enables clients to determine if such a spliterator
-     * covers no elements.
-     *
-     * @return a {@code Spliterator} over the elements in this collection
-     * @since 1.8
-     */
-    @Override
-    default Spliterator<E> spliterator() {
-        return Spliterators.spliterator(this, 0);
-    }
-
-    /**
-     * Returns a sequential {@code Stream} with this collection as its source.
-     *
-     * <p>This method should be overridden when the {@link #spliterator()}
-     * method cannot return a spliterator that is {@code IMMUTABLE},
-     * {@code CONCURRENT}, or <em>late-binding</em>. (See {@link #spliterator()}
-     * for details.)
-     *
-     * @implSpec
-     * The default implementation creates a sequential {@code Stream} from the
-     * collection's {@code Spliterator}.
-     *
-     * @return a sequential {@code Stream} over the elements in this collection
-     * @since 1.8
-     */
-    default Stream<E> stream() {
-        return StreamSupport.stream(spliterator(), false);
-    }
-
-    /**
-     * Returns a possibly parallel {@code Stream} with this collection as its
-     * source.  It is allowable for this method to return a sequential stream.
-     *
-     * <p>This method should be overridden when the {@link #spliterator()}
-     * method cannot return a spliterator that is {@code IMMUTABLE},
-     * {@code CONCURRENT}, or <em>late-binding</em>. (See {@link #spliterator()}
-     * for details.)
-     *
-     * @implSpec
-     * The default implementation creates a parallel {@code Stream} from the
-     * collection's {@code Spliterator}.
-     *
-     * @return a possibly parallel {@code Stream} over the elements in this
-     * collection
-     * @since 1.8
-     */
-    default Stream<E> parallelStream() {
-        return StreamSupport.stream(spliterator(), true);
-    }
 }

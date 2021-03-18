@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -46,7 +46,8 @@ import java.beans.ConstructorProperties;
  *      [ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
  *      [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
  * </pre>
- * <h3><a name="quadrantapproximation">Handling 90-Degree Rotations</a></h3>
+ * <p>
+ * <a name="quadrantapproximation"><h4>Handling 90-Degree Rotations</h4></a>
  * <p>
  * In some variations of the <code>rotate</code> methods in the
  * <code>AffineTransform</code> class, a double-precision argument
@@ -524,7 +525,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
     /**
      * Constructs a new <code>AffineTransform</code> from an array of
      * floating point values representing either the 4 non-translation
-     * entries or the 6 specifiable entries of the 3x3 transformation
+     * enries or the 6 specifiable entries of the 3x3 transformation
      * matrix.  The values are retrieved from the array as
      * {&nbsp;m00&nbsp;m10&nbsp;m01&nbsp;m11&nbsp;[m02&nbsp;m12]}.
      * @param flatmatrix the float array containing the values to be set
@@ -714,7 +715,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
 
     /**
      * Returns a transform that rotates coordinates around an anchor
-     * point according to a rotation vector.
+     * point accordinate to a rotation vector.
      * All coordinates rotate about the specified anchor coordinates
      * by the same amount.
      * The amount of rotation is such that coordinates along the former
@@ -844,7 +845,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * this transform.
      * The return value is either one of the constants TYPE_IDENTITY
      * or TYPE_GENERAL_TRANSFORM, or a combination of the
-     * appropriate flag bits.
+     * appriopriate flag bits.
      * A valid combination of flag bits is an exclusive OR operation
      * that can combine
      * the TYPE_TRANSLATION flag bit
@@ -875,7 +876,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * they have not been cached.
      * @see #getType
      */
-    @SuppressWarnings("fallthrough")
     private void calculateType() {
         int ret = TYPE_IDENTITY;
         boolean sgn0, sgn1;
@@ -1038,7 +1038,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * @see #TYPE_UNIFORM_SCALE
      * @since 1.2
      */
-    @SuppressWarnings("fallthrough")
     public double getDeterminant() {
         switch (state) {
         default:
@@ -1251,7 +1250,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             m02 = tx * m00 + ty * m01 + m02;
             m12 = tx * m10 + ty * m11 + m12;
@@ -1633,7 +1631,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * Y axis direction
      * @since 1.2
      */
-    @SuppressWarnings("fallthrough")
     public void scale(double sx, double sy) {
         int state = this.state;
         switch (state) {
@@ -1708,7 +1705,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
             double M0, M1;
@@ -2228,7 +2224,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * @see #preConcatenate
      * @since 1.2
      */
-    @SuppressWarnings("fallthrough")
     public void concatenate(AffineTransform Tx) {
         double M0, M1;
         double T00, T01, T10, T11;
@@ -2437,7 +2432,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * @see #concatenate
      * @since 1.2
      */
-    @SuppressWarnings("fallthrough")
     public void preConcatenate(AffineTransform Tx) {
         double M0, M1;
         double T00, T01, T10, T11;
@@ -2661,7 +2655,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             det = m00 * m11 - m01 * m10;
             if (Math.abs(det) <= Double.MIN_VALUE) {
@@ -2758,7 +2751,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -2875,7 +2867,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * @param ptDst the specified <code>Point2D</code> that stores the
      * result of transforming <code>ptSrc</code>
      * @return the <code>ptDst</code> after transforming
-     * <code>ptSrc</code> and storing the result in <code>ptDst</code>.
+     * <code>ptSrc</code> and stroring the result in <code>ptDst</code>.
      * @since 1.2
      */
     public Point2D transform(Point2D ptSrc, Point2D ptDst) {
@@ -2893,7 +2885,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             ptDst.setLocation(x * m00 + y * m01 + m02,
                               x * m10 + y * m11 + m12);
@@ -2977,7 +2968,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             default:
                 stateError();
                 /* NOTREACHED */
-                return;
             case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
                 dst.setLocation(x * m00 + y * m01 + m02,
                                 x * m10 + y * m11 + m12);
@@ -3053,7 +3043,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -3168,7 +3157,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -3264,7 +3252,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -3360,7 +3347,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -3450,7 +3436,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      *                                         inverted.
      * @since 1.2
      */
-    @SuppressWarnings("fallthrough")
     public Point2D inverseTransform(Point2D ptSrc, Point2D ptDst)
         throws NoninvertibleTransformException
     {
@@ -3562,7 +3547,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
             M10 = m10; M11 = m11; M12 = m12;
@@ -3695,7 +3679,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
             ptDst.setLocation(x * m00 + y * m01, x * m10 + y * m11);
@@ -3771,7 +3754,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         default:
             stateError();
             /* NOTREACHED */
-            return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
             M00 = m00; M01 = m01;
@@ -3874,7 +3856,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             return super.clone();
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
-            throw new InternalError(e);
+            throw new InternalError();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -314,7 +314,7 @@ enum PlatformComponent {
     private final String domain;
     private final String type;
     private final Set<String> keyProperties;
-    private final MXBeanFetcher<?> fetcher;
+    private final MXBeanFetcher fetcher;
     private final PlatformComponent[] subComponents;
     private final boolean singleton;
 
@@ -322,7 +322,7 @@ enum PlatformComponent {
                               String domain, String type,
                               Set<String> keyProperties,
                               boolean singleton,
-                              MXBeanFetcher<?> fetcher,
+                              MXBeanFetcher fetcher,
                               PlatformComponent... subComponents) {
         this.mxbeanInterfaceName = intfName;
         this.domain = domain;
@@ -363,8 +363,7 @@ enum PlatformComponent {
         try {
             // Lazy loading the MXBean interface only when it is needed
             return (Class<? extends PlatformManagedObject>)
-                       Class.forName(mxbeanInterfaceName, false,
-                                     PlatformManagedObject.class.getClassLoader());
+                       Class.forName(mxbeanInterfaceName, false, null);
         } catch (ClassNotFoundException x) {
             throw new AssertionError(x);
         }
@@ -374,7 +373,7 @@ enum PlatformComponent {
     <T extends PlatformManagedObject>
         List<T> getMXBeans(Class<T> mxbeanInterface)
     {
-        return (List<T>) fetcher.getMXBeans();
+        return fetcher.getMXBeans();
     }
 
     <T extends PlatformManagedObject> T getSingletonMXBean(Class<T> mxbeanInterface)
@@ -383,7 +382,7 @@ enum PlatformComponent {
             throw new IllegalArgumentException(mxbeanInterfaceName +
                 " can have zero or more than one instances");
 
-        List<T> list = getMXBeans(mxbeanInterface);
+        List<T> list = fetcher.getMXBeans();
         assert list.size() == 1;
         return list.isEmpty() ? null : list.get(0);
     }

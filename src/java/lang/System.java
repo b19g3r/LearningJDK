@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2011, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -25,13 +25,10 @@
 package java.lang;
 
 import java.io.*;
-import java.lang.reflect.Executable;
-import java.lang.annotation.Annotation;
 import java.security.AccessControlContext;
 import java.util.Properties;
 import java.util.PropertyPermission;
 import java.util.StringTokenizer;
-import java.util.Map;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.AllPermission;
@@ -550,7 +547,7 @@ public final class System {
      * <tr><td><code>java.version</code></td>
      *     <td>Java Runtime Environment version</td></tr>
      * <tr><td><code>java.vendor</code></td>
-     *     <td>Java Runtime Environment vendor</td></tr>
+     *     <td>Java Runtime Environment vendor</td></tr
      * <tr><td><code>java.vendor.url</code></td>
      *     <td>Java vendor URL</td></tr>
      * <tr><td><code>java.home</code></td>
@@ -584,10 +581,7 @@ public final class System {
      * <tr><td><code>java.compiler</code></td>
      *     <td>Name of JIT compiler to use</td></tr>
      * <tr><td><code>java.ext.dirs</code></td>
-     *     <td>Path of extension directory or directories
-     *         <b>Deprecated.</b> <i>This property, and the mechanism
-     *            which implements it, may be removed in a future
-     *            release.</i> </td></tr>
+     *     <td>Path of extension directory or directories</td></tr>
      * <tr><td><code>os.name</code></td>
      *     <td>Operating system name</td></tr>
      * <tr><td><code>os.arch</code></td>
@@ -640,9 +634,6 @@ public final class System {
      *
      * <p>On UNIX systems, it returns {@code "\n"}; on Microsoft
      * Windows systems it returns {@code "\r\n"}.
-     *
-     * @return the system-dependent line separator string
-     * @since 1.7
      */
     public static String lineSeparator() {
         return lineSeparator;
@@ -1042,25 +1033,13 @@ public final class System {
      */
     @Deprecated
     public static void runFinalizersOnExit(boolean value) {
-        Runtime.runFinalizersOnExit(value);
+        Runtime.getRuntime().runFinalizersOnExit(value);
     }
 
     /**
-     * Loads the native library specified by the filename argument.  The filename
-     * argument must be an absolute path name.
-     *
-     * If the filename argument, when stripped of any platform-specific library
-     * prefix, path, and file extension, indicates a library whose name is,
-     * for example, L, and a native library called L is statically linked
-     * with the VM, then the JNI_OnLoad_L function exported by the library
-     * is invoked rather than attempting to load a dynamic library.
-     * A filename matching the argument does not have to exist in the
-     * file system.
-     * See the JNI Specification for more details.
-     *
-     * Otherwise, the filename argument is mapped to a native library image in
-     * an implementation-dependent manner.
-     *
+     * Loads a code file with the specified filename from the local file
+     * system as a dynamic library. The filename
+     * argument must be a complete path name.
      * <p>
      * The call <code>System.load(name)</code> is effectively equivalent
      * to the call:
@@ -1072,10 +1051,7 @@ public final class System {
      * @exception  SecurityException  if a security manager exists and its
      *             <code>checkLink</code> method doesn't allow
      *             loading of the specified dynamic library
-     * @exception  UnsatisfiedLinkError  if either the filename is not an
-     *             absolute path name, the native library is not statically
-     *             linked with the VM, or the library cannot be mapped to
-     *             a native library image by the host system.
+     * @exception  UnsatisfiedLinkError  if the file does not exist.
      * @exception  NullPointerException if <code>filename</code> is
      *             <code>null</code>
      * @see        java.lang.Runtime#load(java.lang.String)
@@ -1087,16 +1063,9 @@ public final class System {
     }
 
     /**
-     * Loads the native library specified by the <code>libname</code>
-     * argument.  The <code>libname</code> argument must not contain any platform
-     * specific prefix, file extension or path. If a native library
-     * called <code>libname</code> is statically linked with the VM, then the
-     * JNI_OnLoad_<code>libname</code> function exported by the library is invoked.
-     * See the JNI Specification for more details.
-     *
-     * Otherwise, the libname argument is loaded from a system library
-     * location and mapped to a native library image in an implementation-
-     * dependent manner.
+     * Loads the system library specified by the <code>libname</code>
+     * argument. The manner in which a library name is mapped to the
+     * actual system library is system dependent.
      * <p>
      * The call <code>System.loadLibrary(name)</code> is effectively
      * equivalent to the call
@@ -1108,10 +1077,7 @@ public final class System {
      * @exception  SecurityException  if a security manager exists and its
      *             <code>checkLink</code> method doesn't allow
      *             loading of the specified dynamic library
-     * @exception  UnsatisfiedLinkError if either the libname argument
-     *             contains a file path, the native library is not statically
-     *             linked with the VM,  or the library cannot be mapped to a
-     *             native library image by the host system.
+     * @exception  UnsatisfiedLinkError  if the library does not exist.
      * @exception  NullPointerException if <code>libname</code> is
      *             <code>null</code>
      * @see        java.lang.Runtime#loadLibrary(java.lang.String)
@@ -1135,19 +1101,6 @@ public final class System {
      * @since      1.2
      */
     public static native String mapLibraryName(String libname);
-
-    /**
-     * Create PrintStream for stdout/err based on encoding.
-     */
-    private static PrintStream newPrintStream(FileOutputStream fos, String enc) {
-       if (enc != null) {
-            try {
-                return new PrintStream(new BufferedOutputStream(fos, 128), true, enc);
-            } catch (UnsupportedEncodingException uee) {}
-        }
-        return new PrintStream(new BufferedOutputStream(fos, 128), true);
-    }
-
 
     /**
      * Initialize the system class.  Called after thread initialization.
@@ -1189,9 +1142,8 @@ public final class System {
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
         FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
         setIn0(new BufferedInputStream(fdIn));
-        setOut0(newPrintStream(fdOut, props.getProperty("sun.stdout.encoding")));
-        setErr0(newPrintStream(fdErr, props.getProperty("sun.stderr.encoding")));
-
+        setOut0(new PrintStream(new BufferedOutputStream(fdOut, 128), true));
+        setErr0(new PrintStream(new BufferedOutputStream(fdErr, 128), true));
         // Load the zip library now in order to keep java.util.zip.ZipFile
         // from trying to use itself to load this library later.
         loadLibrary("zip");
@@ -1223,26 +1175,14 @@ public final class System {
     private static void setJavaLangAccess() {
         // Allow privileged classes outside of java.lang
         sun.misc.SharedSecrets.setJavaLangAccess(new sun.misc.JavaLangAccess(){
-            public sun.reflect.ConstantPool getConstantPool(Class<?> klass) {
+            public sun.reflect.ConstantPool getConstantPool(Class klass) {
                 return klass.getConstantPool();
             }
-            public boolean casAnnotationType(Class<?> klass, AnnotationType oldType, AnnotationType newType) {
-                return klass.casAnnotationType(oldType, newType);
+            public void setAnnotationType(Class klass, AnnotationType type) {
+                klass.setAnnotationType(type);
             }
-            public AnnotationType getAnnotationType(Class<?> klass) {
+            public AnnotationType getAnnotationType(Class klass) {
                 return klass.getAnnotationType();
-            }
-            public Map<Class<? extends Annotation>, Annotation> getDeclaredAnnotationMap(Class<?> klass) {
-                return klass.getDeclaredAnnotationMap();
-            }
-            public byte[] getRawClassAnnotations(Class<?> klass) {
-                return klass.getRawAnnotations();
-            }
-            public byte[] getRawClassTypeAnnotations(Class<?> klass) {
-                return klass.getRawTypeAnnotations();
-            }
-            public byte[] getRawExecutableTypeAnnotations(Executable executable) {
-                return Class.getExecutableTypeAnnotationBytes(executable);
             }
             public <E extends Enum<E>>
                     E[] getEnumConstantsShared(Class<E> klass) {
@@ -1260,8 +1200,8 @@ public final class System {
             public StackTraceElement getStackTraceElement(Throwable t, int i) {
                 return t.getStackTraceElement(i);
             }
-            public String newStringUnsafe(char[] chars) {
-                return new String(chars, true);
+            public int getStringHash32(String string) {
+                return string.hash32();
             }
             public Thread newThreadWithAcc(Runnable target, AccessControlContext acc) {
                 return new Thread(target, acc);

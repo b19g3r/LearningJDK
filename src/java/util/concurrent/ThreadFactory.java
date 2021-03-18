@@ -42,12 +42,13 @@ package java.util.concurrent;
  *
  * <p>
  * The simplest implementation of this interface is just:
- *  <pre> {@code
+ * <pre>
  * class SimpleThreadFactory implements ThreadFactory {
  *   public Thread newThread(Runnable r) {
  *     return new Thread(r);
  *   }
- * }}</pre>
+ * }
+ * </pre>
  *
  * The {@link Executors#defaultThreadFactory} method provides a more
  * useful simple implementation, that sets the created thread context

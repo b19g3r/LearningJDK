@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2005, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -62,7 +62,6 @@ final class ConditionalSpecialCasing {
         //# Conditional mappings
         //# ================================================================================
         new Entry(0x03A3, new char[]{0x03C2}, new char[]{0x03A3}, null, FINAL_CASED), // # GREEK CAPITAL LETTER SIGMA
-        new Entry(0x0130, new char[]{0x0069, 0x0307}, new char[]{0x0130}, null, 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
 
         //# ================================================================================
         //# Locale-sensitive mappings
@@ -78,8 +77,8 @@ final class ConditionalSpecialCasing {
 
         //# ================================================================================
         //# Turkish and Azeri
-        new Entry(0x0130, new char[]{0x0069}, new char[]{0x0130}, "tr", 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
-        new Entry(0x0130, new char[]{0x0069}, new char[]{0x0130}, "az", 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
+//      new Entry(0x0130, new char[]{0x0069}, new char[]{0x0130}, "tr", 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
+//      new Entry(0x0130, new char[]{0x0069}, new char[]{0x0130}, "az", 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
         new Entry(0x0307, new char[]{}, new char[]{0x0307}, "tr", AFTER_I), // # COMBINING DOT ABOVE
         new Entry(0x0307, new char[]{}, new char[]{0x0307}, "az", AFTER_I), // # COMBINING DOT ABOVE
         new Entry(0x0049, new char[]{0x0131}, new char[]{0x0049}, "tr", NOT_BEFORE_DOT), // # LATIN CAPITAL LETTER I
@@ -89,15 +88,15 @@ final class ConditionalSpecialCasing {
     };
 
     // A hash table that contains the above entries
-    static Hashtable<Integer, HashSet<Entry>> entryTable = new Hashtable<>();
+    static Hashtable entryTable = new Hashtable();
     static {
         // create hashtable from the entry
         for (int i = 0; i < entry.length; i ++) {
             Entry cur = entry[i];
             Integer cp = new Integer(cur.getCodePoint());
-            HashSet<Entry> set = entryTable.get(cp);
+            HashSet set = (HashSet)entryTable.get(cp);
             if (set == null) {
-                set = new HashSet<Entry>();
+                set = new HashSet();
             }
             set.add(cur);
             entryTable.put(cp, set);
@@ -148,26 +147,22 @@ final class ConditionalSpecialCasing {
     }
 
     private static char[] lookUpTable(String src, int index, Locale locale, boolean bLowerCasing) {
-        HashSet<Entry> set = entryTable.get(new Integer(src.codePointAt(index)));
-        char[] ret = null;
+        HashSet set = (HashSet)entryTable.get(new Integer(src.codePointAt(index)));
 
         if (set != null) {
-            Iterator<Entry> iter = set.iterator();
+            Iterator iter = set.iterator();
             String currentLang = locale.getLanguage();
             while (iter.hasNext()) {
-                Entry entry = iter.next();
-                String conditionLang = entry.getLanguage();
+                Entry entry = (Entry)iter.next();
+                String conditionLang= entry.getLanguage();
                 if (((conditionLang == null) || (conditionLang.equals(currentLang))) &&
                         isConditionMet(src, index, locale, entry.getCondition())) {
-                    ret = bLowerCasing ? entry.getLowerCase() : entry.getUpperCase();
-                    if (conditionLang != null) {
-                        break;
-                    }
+                    return (bLowerCasing ? entry.getLowerCase() : entry.getUpperCase());
                 }
             }
         }
 
-        return ret;
+        return null;
     }
 
     private static boolean isConditionMet(String src, int index, Locale locale, int condition) {
